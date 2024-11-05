@@ -236,25 +236,32 @@ class GPTEngine: NPCEngine {
     }
 
     override fun generateEvent(): LocalEvent? {
-        val msg = Message(Role.system, "Adesso tu devi leggere tutta la conversazione che segue fino alla fine e riconoscere il possibile evento che potrebbe aver generato a partire dai seguenti "+readFile("C:\\Users\\danie\\Documents\\Tesi\\TesiBackEnd\\src\\main\\kotlin\\esample\\calcio\\event\\allEvents.txt")+". Devi restituirmi solo eventName e nient'altro")
-        val list = listOf(msg)+messages.filter { it.role == Role.user || it.role == Role.assistant }
-        val eventName: String = sendRequest(list, model = "gpt-4").removePrefix("eventName: ")
-
-        println("L'evento riconosciuto dopo la conversazione è questo: $eventName")
-        val event = recognizeEvent(eventName)
-        if(event != null)
-            messages.add(Message(Role.system, "Da una precedente conversazione con l'allenatore è stato generato questo evento ${event.toMap()}. Reagisci in base al mood del giocatore e alla sua personalità"))
-        return event
-    }
-
-    private fun recognizeEvent(eventName: String): LocalEvent?{
-        /*if(eventName=="Nessuno")
-            return null
-        val eventClass = Class.forName("esample.calcio.event.EventObjectKt")
-        val field: Field = eventClass.getDeclaredField(eventName)
-        field.isAccessible = true
-        return field.get(null) as Event*/
-        TODO()
+        val msg = Message(
+            Role.system,
+            """
+            Sei un analista di conversazioni sportive. "
+            Analizza la seguente conversazione e restituisci un JSON con i seguenti campi: "
+            'evento', 'importanza', 'felicità', 'rabbia', e 'stress'. "
+            L'evento deve essere scelto tra: Fiducia, Incoraggiamento, Perdita di fiducia, Autostima, Critica, Rabbia, Stress. "
+            L'importanza deve essere scelta tra: Banale, Normale, Importante, Cruciale. "
+            I valori di '_satisfaction', '_anger' e '_stress' devono rispettare i seguenti vincoli numerici: "
+            ogni valore deve essere compreso tra -3.0 e 3.0. "
+            La somma dei valori assoluti di '_satisfaction', '_anger' e '_stress' deve rispettare i seguenti limiti: "
+            se l'importanza è 'Banale', la somma deve essere ≤ 2;
+            se l'importanza è 'Normale', la somma deve essere tra > 1 e ≤ 4.5;
+            se l'importanza è 'Importante', la somma deve essere tra > 4.5 e ≤ 7;
+            se l'importanza è 'Cruciale', la somma deve essere tra > 7 e ≤ 9.
+            Restituisci solo il JSON come risultato.
+            """.trimIndent()
+        )
+        val messagesList = listOf(msg)+messages.filter { it.role == Role.user || it.role == Role.assistant }
+        val map = npc!!.context.toMap().toMutableMap()
+        val dm = mutableMapOf<String, Any>()
+        messagesList.forEach{ dm["Sender role=${if(it.role == Role.user) "Allenatore" else npc!!.name}"] = it.content}
+        map["dialog"] = dm
+        val m = Message(Role.user, createXml("Conversation", map, mapOf()))
+        val event = sendRequest(listOf(msg, m), "gpt-4")
+        return Json.decodeFromString<LocalEvent>(event)
     }
 
     override fun talk(input: String): String {
