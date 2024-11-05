@@ -1,0 +1,148 @@
+<context>
+    <!-- global definisce il contesto globale del mondo del calcio -->
+    <global>
+        <topTeams>
+            <team> Juventus </team>
+            <team> Manchester United </team>
+            <team> Manchester City </team>
+            <team> Arsenal </team>
+            <team> Liverpool </team>
+            <team> Real Madrid </team>
+            <team> Bayern Monaco </team>
+        </topTeams>
+        <topPlayers>
+            <player> Lorenzo Guarnieri </player>
+            <player> Natan </player>
+            <player> Gianluca Marzano </player>
+            <player> Milan Ilic </player>
+            <player> Gianluca Quarto </player>
+        </topPlayers>
+        <topManagers>
+            <!-- questo è l'utente -->
+            <manager> giocatore </manager>
+            <manager> Cork </manager>
+            <manager> Dominguez </manager>
+            <manager> Domenicano </manager>
+        </topManagers>
+        <!-- i team che hanno vinto la champions league negli ultimi 6 anni-->
+        <lastInternationalWinnerTeams>
+            <year2046> Real Madrid </year2046>
+            <year2047> Real Madrid </year2047>
+            <year2048> Bayern Monaco </year2048>
+            <year2049> Juventus </year2049>
+            <year2050> Borussia Dortmund </year2050>
+            <year2051> Juventus </year2051>
+            <year2052> Arsenal </year2052>
+        </lastInternationalWinnerTeams>
+        <description> Il calcio inglese è il miglior calcio al mondo, con i migliori giocatori. Il calcio spagnolo è il secondo in posizione, anche se negli ultimi anni le loro squadre hanno giocato male in Champions League hanno comunque giocatori fortissimi. Il calcio italiano è in terza posizione, generalmente tutte le squadre sono abbastanza scarse a livello internazionale tranne Juventus e Catanzaro, che si fanno rispettare internazionalmente</description>
+    </global>
+    <!-- local definisce il contesto della squadra del giocatore -->
+    <local>
+        <players>
+            <player>
+                <name>Harvey Brennan</name>
+                <pos>Por</pos>
+            </player>
+            <player>
+                <name>Jaud Kasereka</name>
+                <pos>DD</pos>
+            </player>
+            <player>
+                <name>Iñaki Sáenz</name>
+                <pos>DCD</pos>
+            </player>
+            <player>
+                <name>Milovan Díaz</name>
+                <pos>DCS</pos>
+            </player>
+            <player>
+                <name>Pier Paolo Sperti</name>
+                <pos>DS</pos>
+            </player>
+            <player>
+                <name>Raúl Rosas</name>
+                <pos>M</pos>
+            </player>
+            <player>
+                <name>Pascal Robert</name>
+                <pos>CCD</pos>
+            </player>
+            <player>
+                <name>José Vicente Romero</name>
+                <pos>CCS</pos>
+            </player>
+            <player>
+                <name>Lorenzo Guarneri</name>
+                <pos>TD</pos>
+            </player>
+            <player>
+                <name>Riccardo Marinaro</name>
+                <pos>TS</pos>
+            </player>
+            <player>
+                <name>Jeremias</name>
+                <pos>PC</pos>
+            </player>
+            <player>
+                <name>Ivano D'Amato</name>
+                <pos>POR</pos>
+            </player>
+            <player>
+                <name>Luca Sipone</name>
+                <pos>DC</pos>
+            </player>
+            <player>
+                <name>Pepijn Devos</name>
+                <pos>DD</pos>
+            </player>
+            <player>
+                <name>Simone Lavopa</name>
+                <pos>CC</pos>
+            </player>
+            <player>
+                <name>Graziano Dominin</name>
+                <pos>CC</pos>
+            </player>
+            <player>
+                <name>Natan</name>
+                <pos>TD</pos>
+            </player>
+            <player>
+                <name>Manuele Stefanini</name>
+                <pos>PC</pos>
+            </player>
+            <player>
+                <name>Armando Bri</name>
+                <pos>TS</pos>
+            </player>
+            <player>
+                <name>Roberto Cerulli</name>
+                <pos>M</pos>
+            </player>
+            <player>
+                <name>Marcello Dini</name>
+                <pos>M</pos>
+            </player>
+            <player>
+                <name>Roger Izquierdo</name>
+                <pos>TS</pos>
+            </player>
+            <player>
+                <name>Léon Tuithof</name>
+                <pos>DC</pos>
+                <cap>capitano</cap>
+            </player>
+        </players>
+        <staff>
+            <allenatore> l'utente </allenatore>
+            <vice> Alejandro Gómez </vice>
+        </staff>
+        <dirigenti>
+            <presidente>
+                <name> Alessandro Rossi </name>
+            </presidente>
+        </dirigenti>
+    </local>
+    <!-- actual definisce il contesto in cui il giocatore inizia a giocare -->
+    <actual> in questi anni l'allenatore ha portato la squadra a vincere 10 campionati di fila e svariate coppe, tra cui 4 champions league. In questo nuovo anno la juventus sta andando male, si ritrova a gennaio in decima posizione con 5 vittorie, 10 sconfitte e 3 pareggi. La prossima partita è molto importante, è contro la prima della classe, il Catanzaro a Torino, e la juve non vince da 5 partite. L'aria che tira nello spogliatoio è molto pesante ed è chiaro che sia la squadra che la dirigenza stiano pensando che sia arrivato il momento di cambiare aria. </actual>
+</context>

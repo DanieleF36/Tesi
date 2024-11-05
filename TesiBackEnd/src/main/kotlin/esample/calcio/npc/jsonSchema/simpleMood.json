@@ -1,0 +1,53 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "EmotionalState",
+  "type": "object",
+  "properties": {
+    "_happiness": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "_anxiety": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "_calm": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "_frustration": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "_stress": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+
+    "_anger": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "_enthusiasm": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    }
+  },
+  "required": [
+    "_happiness",
+    "_anxiety",
+    "_calm",
+    "_frustration",
+    "_stress",
+    "_anger",
+    "_enthusiasm"
+  ],
+  "additionalProperties": false
+}

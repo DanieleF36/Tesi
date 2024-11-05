@@ -1,0 +1,7 @@
+.stats-scrollable {
+    height: calc(100vh - 150px); 
+    overflow-y: auto; 
+    margin-top: 20px; 
+    border: 1px solid #dee2e6; 
+    border-radius: 0.25rem; 
+}

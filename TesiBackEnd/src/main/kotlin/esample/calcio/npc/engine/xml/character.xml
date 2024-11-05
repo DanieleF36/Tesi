@@ -1,0 +1,102 @@
+<request>
+    <character>
+        <details>
+            <name>  </name>
+            <age>  </age>
+            <!-- il group a cui appartiene un NPC è una astrazione di un gruppo sociale, ad esempio: Calciatori, Staff Tecnico, Dirigenti e Staff di Supporto -->
+            <group>
+                <groupName>  </groupName>
+                <description>  </description>
+            </group>
+            <!-- qui si va a descrivere la storia dell'NPC-->
+            <personalStory>
+
+            </personalStory>
+        </details>
+        <!-- i goals definiscono obiettivi e i compiti dell'NPC che dovrà svolgere -->
+        <goals>
+            <goal>
+                <description> </description>
+                <term> </term>
+            </goal>
+            <goal>
+                <description>  </description>
+                <term>  </term>
+            </goal>
+        </goals>
+        <!-- su una scala da 1 a 10 -->
+        <personality>
+            <openness> </openness>
+            <conscientiousness>  </conscientiousness>
+            <extraversion>  </extraversion>
+            <agreeableness>  </agreeableness>
+            <resilience>  </resilience>
+            <impulsivity>  </impulsivity>
+            <ambition>  </ambition>
+            <determination>  </determination>
+            <communicationStyle>  </communicationStyle>
+            <dominantEmotion>  </dominantEmotion>
+            <values/>
+        </personality>
+        <!-- su una scala da 1 a 10-->
+        <mood>
+            <happiness>  </happiness>
+            <anxiety>  </anxiety>
+            <stress>  </stress>
+            <anger>  </anger>
+        </mood>
+    </character>
+    <context>
+        <!-- global definisce il contesto globale del mondo del calcio -->
+        <global>
+            <topTeams>
+                <team>  </team>
+                <team>  </team>
+                <team>  </team>
+                <team>  </team>
+                <team>  </team>
+                <team>  </team>
+                <team>  </team>
+            </topTeams>
+            <topPlayers>
+                <player>  </player>
+                <player>  </player>
+                <player>  </player>
+                <player>  </player>
+                <player>  </player>
+            </topPlayers>
+            <topManagers>
+                <!-- questo è l'utente -->
+                <manager>  </manager>
+                <manager>  </manager>
+                <manager>  </manager>
+                <manager>  </manager>
+            </topManagers>
+            <!-- i team che hanno vinto la champions league negli ultimi 6 anni-->
+            <lastInternationalWinnerTeams>
+
+            </lastInternationalWinnerTeams>
+            <description>  </description>
+        </global>
+        <!-- local definisce il contesto della squadra del giocatore -->
+        <local>
+            <players>
+
+            </players>
+            <staff>
+
+            </staff>
+            <executives>
+
+            </executives>
+        </local>
+        <!-- actual definisce il contesto in cui il giocatore inizia a giocare -->
+        <actual>  </actual>
+    </context>
+    <events>
+
+    </events>
+    <prompt>
+        Da qui in avanti tu interpreterai il personaggio descritto in character, che vive in un mondo definito in context e deve non solo reagire, coerentemente alla sua personalità, a tutti gli eventi ma anche parlarne proattivamente
+    </prompt>
+</request>
