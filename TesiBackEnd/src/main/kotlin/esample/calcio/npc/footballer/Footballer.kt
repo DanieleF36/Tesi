@@ -48,7 +48,7 @@ class Footballer(
     }
 
     override fun endConversation() {
-        val event = engine.generateEvent() ?: return
+        val event = engine.generateEvent()
         mood!!.update(event.statistic)
         //println("Il mood di $_name è cambiato, diventando $mood, in seguito all'evento: ${event.description}")
         group.generateEvent(event)

@@ -8,6 +8,7 @@ import conceptualMap2.npc.Mood
  * @param statistic define the statistic that describe the event
  * @param description of what happened in the event
  */
+@kotlinx.serialization.Serializable
 abstract class Event(
     val type: EventType,
     val importance: EventImportance,
