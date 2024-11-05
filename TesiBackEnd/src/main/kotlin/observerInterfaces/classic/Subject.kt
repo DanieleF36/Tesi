@@ -1,4 +1,4 @@
-package observerInterfaces
+package observerInterfaces.classic
 
 interface Subject {
     fun attach(o: Observer)

@@ -1,8 +1,11 @@
 package esample.calcio.npc.footballer
 
+import conceptualMap2.clock.TimerEventNPC
+import conceptualMap2.clock.TimerEventCM
 import conceptualMap2.npc.NPC
 import conceptualMap2.conceptualMap.CommonThought
 import conceptualMap2.conceptualMap.ConceptualMap
+import conceptualMap2.conceptualMap.Fellowship
 import conceptualMap2.event.Event
 import conceptualMap2.event.GlobalEvent
 import conceptualMap2.event.LocalEvent
@@ -14,6 +17,9 @@ import esample.calcio.event.impl.FootballEI
 import esample.calcio.event.impl.FootballET
 import esample.calcio.npc.footballer.personality.FootballerPersonality
 import esample.calcio.npc.footballer.personality.WeighedMood
+import java.time.Duration
+import java.time.temporal.ChronoUnit
+import java.time.temporal.TemporalUnit
 
 class Footballer(
     name: String? = null,
@@ -44,7 +50,6 @@ class Footballer(
         map["transfer"] = transfer.map{ it.toMap()}
         map["role"] = role.toString()
         engine.addDetails(map, mapOf())
-
     }
 
     override fun endConversation() {
@@ -64,16 +69,134 @@ class Footballer(
     /**
      * This function is called when an event is received from the group
      */
-    override fun update() {
+    override fun update(t: TimerEventCM) {
         val evt = group.getEventHistory().last()
-        _mood = when(evt){
-            is LocalEvent -> localEvent(evt)
-            is PropagatedEvent -> propagatedEvent(evt)
-            is GlobalEvent -> globalEvent(evt)
-            else -> TODO("Not supported yet")
+        if(computeProbPropagation(evt)) {
+            t.increment()
+            TimerEventNPC(evt, computeSpeedProp(evt)) {
+                _mood = when (evt) {
+                    is LocalEvent -> localEvent(evt)
+                    is PropagatedEvent -> propagatedEvent(evt)
+                    is GlobalEvent -> globalEvent(evt)
+                    else -> TODO("Not supported yet")
+                }
+                engine.receiveEvent(evt, mood!!, thoughtOnPlayer!!)
+                tasks.forEach { it.action(evt) }
+            }
         }
-        engine.receiveEvent(evt, mood!!,thoughtOnPlayer!!)
-        tasks.forEach { it.action(evt) }
+    }
+
+    private fun computeProbPropagation(event: Event): Boolean{
+        if(event is GlobalEvent)
+            return true //TODO()
+        else {
+            val p = if(event is LocalEvent)
+                 (when (thoughtsOnOthers[event.personGenerated.name]){
+                    Relationship.VERY_CLOSE -> 1f
+                    Relationship.CLOSE -> .8f
+                    Relationship.ACQUAINTANCE -> .5f
+                    Relationship.NO_RELATIONSHIP -> .2f
+                    Relationship.DISTANT -> .1f
+                    Relationship.ADVERSARY -> .6f
+                    Relationship.RIVAL -> .8f
+                    null -> TODO()
+                } * .4f) + (when(event.personGenerated.group.fellowship){
+                    Fellowship.VERY_LOW -> .1f
+                    Fellowship.LOW -> .3f
+                    Fellowship.MID -> .5f
+                    Fellowship.HIGH -> .8f
+                    Fellowship.VERY_HIGH -> 1f
+                } * .3f) + (when(event.importance as FootballEI){
+                    FootballEI.BANALE -> .1f
+                    FootballEI.NORMALE -> .3f
+                    FootballEI.IMPORTANTE -> .7f
+                    FootballEI.CRUCIALE -> 1f
+                    else -> TODO()
+                } * .5f)
+            else
+                if(event is PropagatedEvent)
+                (when (thoughtsOnOthers[event.personGenerated.name]){
+                    Relationship.VERY_CLOSE -> 1f
+                    Relationship.CLOSE -> .8f
+                    Relationship.ACQUAINTANCE -> .5f
+                    Relationship.NO_RELATIONSHIP -> .2f
+                    Relationship.DISTANT -> .1f
+                    Relationship.ADVERSARY -> .6f
+                    Relationship.RIVAL -> .8f
+                    null -> TODO()
+                } * .4f) + (when(event.personGenerated.group.fellowship){
+                    Fellowship.VERY_LOW -> .1f
+                    Fellowship.LOW -> .3f
+                    Fellowship.MID -> .5f
+                    Fellowship.HIGH -> .8f
+                    Fellowship.VERY_HIGH -> 1f
+                } * .3f) + (when(event.importance as FootballEI){
+                    FootballEI.BANALE -> .1f
+                    FootballEI.NORMALE -> .3f
+                    FootballEI.IMPORTANTE -> .7f
+                    FootballEI.CRUCIALE -> 1f
+                    else -> TODO()
+                } * .5f)
+                else TODO()
+            return Math.random()<=p
+        }
+    }
+
+    private fun computeSpeedProp(event: Event): Duration{
+        if(event is GlobalEvent)
+            return Duration.ZERO //TODO()
+        else {
+            val p = if (event is LocalEvent)
+                (when (thoughtsOnOthers[event.personGenerated.name]) {
+                    Relationship.VERY_CLOSE -> 1f
+                    Relationship.CLOSE -> .8f
+                    Relationship.ACQUAINTANCE -> .5f
+                    Relationship.NO_RELATIONSHIP -> .2f
+                    Relationship.DISTANT -> .1f
+                    Relationship.ADVERSARY -> .6f
+                    Relationship.RIVAL -> .8f
+                    null -> TODO()
+                } * .4f) + (when (event.personGenerated.group.fellowship) {
+                    Fellowship.VERY_LOW -> .1f
+                    Fellowship.LOW -> .3f
+                    Fellowship.MID -> .5f
+                    Fellowship.HIGH -> .8f
+                    Fellowship.VERY_HIGH -> 1f
+                } * .3f) + (when (event.importance as FootballEI) {
+                    FootballEI.BANALE -> .1f
+                    FootballEI.NORMALE -> .3f
+                    FootballEI.IMPORTANTE -> .7f
+                    FootballEI.CRUCIALE -> 1f
+                    else -> TODO()
+                } * .5f)
+            else
+                if (event is PropagatedEvent)
+                    (when (thoughtsOnOthers[event.personGenerated.name]) {
+                        Relationship.VERY_CLOSE -> 1f
+                        Relationship.CLOSE -> .8f
+                        Relationship.ACQUAINTANCE -> .5f
+                        Relationship.NO_RELATIONSHIP -> .2f
+                        Relationship.DISTANT -> .1f
+                        Relationship.ADVERSARY -> .6f
+                        Relationship.RIVAL -> .8f
+                        null -> TODO()
+                    } * .4f) + (when (event.personGenerated.group.fellowship) {
+                        Fellowship.VERY_LOW -> .1f
+                        Fellowship.LOW -> .3f
+                        Fellowship.MID -> .5f
+                        Fellowship.HIGH -> .8f
+                        Fellowship.VERY_HIGH -> 1f
+                    } * .3f) + (when (event.importance as FootballEI) {
+                        FootballEI.BANALE -> .1f
+                        FootballEI.NORMALE -> .3f
+                        FootballEI.IMPORTANTE -> .7f
+                        FootballEI.CRUCIALE -> 1f
+                        else -> TODO()
+                    } * .5f)
+                else TODO()
+
+            return Duration.of(((1f/p)*1500).toLong(), ChronoUnit.MINUTES)
+        }
     }
 
     private fun localEvent(evt: LocalEvent): Mood{

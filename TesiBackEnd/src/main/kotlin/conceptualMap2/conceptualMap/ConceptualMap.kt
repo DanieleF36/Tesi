@@ -4,7 +4,7 @@ import conceptualMap2.event.Event
 import conceptualMap2.event.GlobalEvent
 import conceptualMap2.event.LocalEvent
 import conceptualMap2.event.PropagatedEvent
-import observerInterfaces.Subject
+import observerInterfaces.push.Subject
 import conceptualMap2.exceptions.*
 import conceptualMap2.npc.NPC
 
@@ -17,7 +17,8 @@ abstract class ConceptualMap (
     val name: String,
     val description: String,
     val commonThought: CommonThought,
-): Subject{
+    val fellowship: Fellowship
+): Subject {
     /**
      * @return the collection of all the possible event generated or propagated in this group, sorted by time. i.e. the last event in the list will be the last generated
      */

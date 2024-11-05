@@ -2,12 +2,11 @@ package conceptualMap2.npc
 
 import conceptualMap2.conceptualMap.CommonThought
 import conceptualMap2.conceptualMap.ConceptualMap
-import conceptualMap2.event.Event
 import conceptualMap2.event.LocalEvent
 import conceptualMap2.moduleDagger2.*
 import conceptualMap2.npc.task.Task
 import conceptualMap2.npc.knowledge.Knowledge
-import observerInterfaces.Observer
+import observerInterfaces.push.Observer
 import java.io.Closeable
 import javax.inject.Inject
 

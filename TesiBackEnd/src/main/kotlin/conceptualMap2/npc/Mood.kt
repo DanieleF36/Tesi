@@ -1,7 +1,6 @@
 package conceptualMap2.npc
 
 import kotlinx.serialization.Serializable
-import observerInterfaces.Subject
 
 /**
  * this class must be unmodifiable

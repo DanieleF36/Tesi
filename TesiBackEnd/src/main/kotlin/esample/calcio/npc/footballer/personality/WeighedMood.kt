@@ -1,7 +1,7 @@
 package esample.calcio.npc.footballer.personality
 
 import conceptualMap2.npc.Mood
-import observerInterfaces.Observer
+import observerInterfaces.classic.Observer
 
 class WeighedMood(
     _satisfaction: Float,

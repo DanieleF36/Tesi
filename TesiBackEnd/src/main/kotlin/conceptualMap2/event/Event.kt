@@ -1,6 +1,9 @@
 package conceptualMap2.event
 
 import conceptualMap2.npc.Mood
+import kotlinx.serialization.Serializable
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 /**
  * @param type this is the typology of the event
@@ -8,15 +11,16 @@ import conceptualMap2.npc.Mood
  * @param statistic define the statistic that describe the event
  * @param description of what happened in the event
  */
-@kotlinx.serialization.Serializable
+@Serializable
 abstract class Event(
     val type: EventType,
     val importance: EventImportance,
     val statistic: Mood,
     val description: String,
+    val generatedTime: LocalDateTime
 ): Cloneable {
     override fun toString(): String {
-        return "description=$description, type=$type, importance=$importance"
+        return "description=$description, type=$type, importance=$importance, generatedTime=${generatedTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))}"
     }
 
     open fun toMap(): Map<String, Any?> {
