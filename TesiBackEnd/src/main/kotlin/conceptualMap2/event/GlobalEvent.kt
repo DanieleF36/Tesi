@@ -1,18 +1,15 @@
-package esample.calcio.event.impl
+package conceptualMap2.event
 
-import conceptualMap2.Statistic
-import conceptualMap2.event.Event
-import conceptualMap2.event.EventImportance
-import conceptualMap2.event.EventType
+import conceptualMap2.npc.Mood
 
 class GlobalEvent(
     type: EventType,
     importance: EventImportance,
-    statistic: Statistic,
+    statistic: Mood,
     description: String
 ): Event(type, importance, statistic, description) {
     override fun toString(): String {
-        return "description='$description', importance=$importance"
+        return "Global: description=$description, type=$type, importance=$importance"
     }
 
     override fun toMap(): Map<String, Any?> {

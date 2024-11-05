@@ -1,6 +1,9 @@
-package conceptualMap2
+package conceptualMap2.conceptualMap
 
 import conceptualMap2.event.Event
+import conceptualMap2.event.GlobalEvent
+import conceptualMap2.event.LocalEvent
+import conceptualMap2.event.PropagatedEvent
 import observerInterfaces.Subject
 import conceptualMap2.exceptions.*
 import conceptualMap2.npc.NPC
@@ -13,7 +16,7 @@ import conceptualMap2.npc.NPC
 abstract class ConceptualMap (
     val name: String,
     val description: String,
-    protected val commonThought: Statistic,
+    val commonThought: CommonThought,
 ): Subject{
     /**
      * @return the collection of all the possible event generated or propagated in this group, sorted by time. i.e. the last event in the list will be the last generated
@@ -33,15 +36,15 @@ abstract class ConceptualMap (
      * @param propagation if true the event will be propagated to the other linked groups
      * @throws EventGeneratedInAnotherGroupException
      */
-    abstract fun generateEvent(event: Event, propagation: Boolean = true)
+    abstract fun generateEvent(event: LocalEvent, propagation: Boolean = true)
     /**
      * @param event is the one that was generated into a different group and later propagated to this one
      */
-    abstract fun receiveEvent(event: Event)
+    abstract fun receiveEvent(event: PropagatedEvent)
     /**
      * @param event is a global event that was generated in the world
      */
-    abstract fun receiveGlobalEvent(event: Event)
+    abstract fun receiveGlobalEvent(event: GlobalEvent)
 
     abstract fun generateNPC(): NPC
 

@@ -1,4 +1,4 @@
-package conceptualMap2
+package conceptualMap2.conceptualMap
 
 import conceptualMap2.event.Event
 

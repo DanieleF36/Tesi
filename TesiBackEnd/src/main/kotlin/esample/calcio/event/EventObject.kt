@@ -3,7 +3,7 @@ package esample.calcio.event
 import conceptualMap2.event.Event
 import esample.calcio.event.impl.FootballEI
 import esample.calcio.event.impl.FootballET
-import esample.calcio.event.impl.GlobalEvent
+import conceptualMap2.event.GlobalEvent
 import esample.calcio.npc.footballer.personality.SimpleMood
 import esample.calcio.npc.npcs.presidente
 
