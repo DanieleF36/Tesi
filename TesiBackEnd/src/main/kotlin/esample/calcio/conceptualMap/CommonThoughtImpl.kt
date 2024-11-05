@@ -1,10 +1,7 @@
 package esample.calcio.conceptualMap
 
-import conceptualMap2.Statistic
 import conceptualMap2.conceptualMap.CommonThought
 import conceptualMap2.npc.Mood
-import esample.calcio.npc.footballer.personality.SimpleMood
-import observerInterfaces.Observer
 
 class CommonThoughtImpl(
     _affection: Float,

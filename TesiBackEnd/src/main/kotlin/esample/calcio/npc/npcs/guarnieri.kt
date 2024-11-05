@@ -1,5 +1,5 @@
 package esample.calcio.npc.npcs
-
+/*
 import conceptualMap2.npc.knowledge.Knowledge
 import conceptualMap2.npc.task.Task
 import esample.calcio.conceptualMap.calciatori
@@ -23,3 +23,4 @@ val guarnieri = Footballer(
     transfer= listOf(Transfer("Parma", "Catanzaro", 8000000, 2038), Transfer("Catanzaro", "Real Madrid", 99000000, 2043), Transfer("Real Madrid", "Juventus", 131000000, 2049)),
     role = GameRole.ALADX
 )
+*/

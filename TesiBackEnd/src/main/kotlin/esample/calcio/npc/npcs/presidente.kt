@@ -1,5 +1,5 @@
 package esample.calcio.npc.npcs
-
+/*
 import conceptualMap2.npc.knowledge.Knowledge
 import conceptualMap2.npc.Personality
 import esample.calcio.conceptualMap.dirigenti
@@ -18,3 +18,4 @@ val presidente = Manager(
     personality = Personality(3, 8, 8, 4, 6, 10, 9, 9, SimpleCommunicationStyle.AGGRESSIVO, SimpleEmotion.RESOLUTENESS, mapOf()),
     role = ManagerRole.PRESIDENTE
 )
+-*/

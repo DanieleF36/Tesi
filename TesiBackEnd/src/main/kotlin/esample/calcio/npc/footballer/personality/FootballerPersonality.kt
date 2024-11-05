@@ -28,4 +28,8 @@ class FootballerPersonality(
         map["communicationStyle"] = communicationStyle.toString()
         return map
     }
+
+    override fun toString(): String {
+        return "reliability=$reliability, extraversion=$extraversion, willpower=$willpower, impulsivity=$impulsivity, determination=$determination, charisma=$charisma, insight=$insight, eloquence=$eloquence, unpredictability=$unpredictability, communicationStyle=$communicationStyle"
+    }
 }

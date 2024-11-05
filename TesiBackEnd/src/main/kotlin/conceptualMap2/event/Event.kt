@@ -1,7 +1,5 @@
 package conceptualMap2.event
 
-import conceptualMap2.npc.NPC
-import conceptualMap2.Statistic
 import conceptualMap2.npc.Mood
 
 /**

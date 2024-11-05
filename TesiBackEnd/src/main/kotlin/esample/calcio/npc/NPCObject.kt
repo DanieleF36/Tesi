@@ -1,5 +1,5 @@
 package esample.calcio.npc
-
+/*
 import conceptualMap2.event.Event
 import conceptualMap2.npc.NPC
 import conceptualMap2.npc.task.Task
@@ -78,3 +78,5 @@ fun getNPCs(): HashSet<NPC>{
 fun readFile(filePath: String): String {
     return File(filePath).readText()
 }
+
+ */

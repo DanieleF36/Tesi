@@ -1,7 +1,7 @@
 package esample.calcio.npc.manager;
 
-import conceptualMap2.ConceptualMap
-import conceptualMap2.Statistic
+/*
+import conceptualMap2.conceptualMap.ConceptualMap
 import conceptualMap2.npc.NPC
 import conceptualMap2.npc.task.Task
 import conceptualMap2.npc.knowledge.Knowledge
@@ -24,3 +24,4 @@ class Manager(
         engine.addDetails(mapOf("role" to role.toString()), mapOf())
     }
 }
+*/

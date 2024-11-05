@@ -1,7 +1,5 @@
 package esample.calcio.npc.footballer
 
-import conceptualMap2.Statistic
-
 /**
  * @param pom player of the match
  * @param art average rating

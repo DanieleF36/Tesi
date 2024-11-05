@@ -1,5 +1,5 @@
 package esample.calcio.npc.npcs
-
+/*
 import conceptualMap2.npc.knowledge.Knowledge
 import conceptualMap2.npc.task.Task
 import esample.calcio.conceptualMap.calciatori
@@ -23,3 +23,6 @@ val damato = Footballer(
     transfer = listOf(Transfer("Roma", "SPAL", 63000, 2040), Transfer( "SPAL","Benevento", 0, 2041), Transfer("Benevento", "Juventus", 1000000, 2050)),
     role= GameRole.PT
 )
+
+
+ */

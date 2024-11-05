@@ -1,5 +1,5 @@
 package esample.calcio.npc.npcs
-
+/*
 import conceptualMap2.npc.knowledge.Knowledge
 import conceptualMap2.npc.task.Task
 import esample.calcio.conceptualMap.calciatori
@@ -24,3 +24,6 @@ val brennan = Footballer(
     transfer = listOf(Transfer("Real Madrid", "Juventus", 77000000, 2048)),
     role = GameRole.PT
 )
+
+
+ */

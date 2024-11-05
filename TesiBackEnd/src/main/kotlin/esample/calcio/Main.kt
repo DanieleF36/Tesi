@@ -1,11 +1,10 @@
 package esample.calcio
 
-import conceptualMap2.ConceptualMap
+import conceptualMap2.conceptualMap.ConceptualMap
 import conceptualMap2.event.Event
 import conceptualMap2.npc.NPC
 import esample.calcio.conceptualMap.*
 import esample.calcio.event.*
-import esample.calcio.npc.npcs.presidente
 import io.ktor.http.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
@@ -51,10 +50,10 @@ private data class Couple<T, V> (val first: T, val second: V)
 private data class EventFront(val name: String, val description: String, val groupName: String, val idNPC: Int)
 
 fun main() {
-    initMap()
-    val npcs = esample.calcio.npc.getNPCs()
-    presidente.addEvent(convocazioneMancata)
-    //val npcs = listOf<NPC>()
+    //initMap()
+    //val npcs = esample.calcio.npc.getNPCs()
+    //presidente.addEvent(convocazioneMancata)
+    val npcs = listOf<NPC>()
     val matches = listOf(Match(0, "Inter", 10, true))
     embeddedServer(Netty, port = 8080) {
         install(ContentNegotiation) {
@@ -120,7 +119,7 @@ fun main() {
                 get{
                     //return next match
                 }
-                put("/{id}"){
+                /*put("/{id}"){
                     //option for match
                     val id = call.parameters["id"]?.toIntOrNull()
                     println("PUT /match/$id")
@@ -152,9 +151,9 @@ fun main() {
                     }
                     call.respond(res.first)
 
-                }
+                }*/
             }
-            route("/events"){
+            /*route("/events"){
                 post {
                     println("POST /events")
                     try {
@@ -198,12 +197,12 @@ fun main() {
                         call.respond(HttpStatusCode.InternalServerError)
                     }
                 }
-            }
+            }*/
         }
     }.start(wait = true)
 }
 
-private fun computeNextMatch(match: Match, options: OptionForMatch): Couple<MatchResult, Event> {
+/*private fun computeNextMatch(match: Match, options: OptionForMatch): Couple<MatchResult, Event> {
     var res = match.value
     if(options.playBad) res-=1 else res+=1
     if(options.badTactic) res-=2 else res+=1
@@ -217,7 +216,7 @@ private fun computeNextMatch(match: Match, options: OptionForMatch): Couple<Matc
     if(matchRes.teamA == matchRes.teamB)
         return Couple(matchRes, pareggio)
     return Couple(matchRes, vittoria)
-}
+}*/
 
 private object CustomSerializer : KSerializer<NPC> {
     override val descriptor: SerialDescriptor = buildClassSerialDescriptor("NPC"){
@@ -233,16 +232,16 @@ private object CustomSerializer : KSerializer<NPC> {
     override fun serialize(encoder: Encoder, value: NPC) {
         val composite = encoder.beginStructure(descriptor)
         composite.encodeIntElement(descriptor, 0, value.id)
-        composite.encodeStringElement(descriptor, 1, value.name)
+        value.name?.let { composite.encodeStringElement(descriptor, 1, it) }
         composite.encodeStringElement(descriptor, 2, value.group.name)
         composite.endStructure(descriptor)
 
     }
 }
 
-private fun generateGlobalEvent(event: Event) {
+/*private fun generateGlobalEvent(event: Event) {
     calciatori.receiveGlobalEvent(event)
     dirigenti.receiveGlobalEvent(event)
     staffTecnico.receiveGlobalEvent(event)
     staffSupporto.receiveGlobalEvent(event)
-}
+}*/

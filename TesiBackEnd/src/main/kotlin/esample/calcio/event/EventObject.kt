@@ -1,5 +1,5 @@
 package esample.calcio.event
-
+/*
 import conceptualMap2.event.Event
 import esample.calcio.event.impl.FootballEI
 import esample.calcio.event.impl.FootballET
@@ -196,3 +196,5 @@ val convocazioneMancata = Event(
     statistic = SimpleMood(-0.2f, -0.3f, 0f, 0.2f, 0.2f, 0.3f, 0.4f),
     description = "Il presidente si arrabbia molto con l'allenatore(utente) dopo che questo non si presenta a una convocazione nel suo ufficio."
 )
+
+ */
