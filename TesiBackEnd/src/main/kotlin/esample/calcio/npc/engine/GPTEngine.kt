@@ -41,6 +41,7 @@ import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.StreamResult
 
 
+@Suppress("UNCHECKED_CAST")
 class GPTEngine: NPCEngine {
     private val URL = "https://api.openai.com/v1/chat/completions"
     private val OPENAI_API_KEY = "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"
@@ -111,87 +112,85 @@ class GPTEngine: NPCEngine {
         return Pair(input.substringBefore(","), input.substringAfter(",").toInt())
     }
 
-    private fun generateStory(name: String, age: Int, context: Knowledge, groupName: String, groupDescription: String): String {
-        val input = "Sapendo che il mondo di gioco è descritto da questo contesto ${context.toMap()}, e sapendo che il gruppo a cui appartiene questo personaggio è $groupName, "+
-                    "che i personaggi che appartengono a questo gruppo sono così descritti: \"$groupDescription\", "+
-                    "creami una storia di questo personaggio,che si chiama $name ed ha $age anni e restituiscimi solo quella e nient'altro"
-        return sendSingleText(input)
+    private fun generateStory(characterInfo: Map<String, Any>, comments: Map<String, String>): String {
+        val m = characterInfo.toMutableMap()
+        m["prompt"] = "date tutte queste informazioni riguardanti il personaggio generami una sua storia personale e restituiscimi solo quella, senza aggiungere altro"
+        return sendSingleText(createXml("request",m, comments))
     }
 
-    private fun generatePersonality(context: Knowledge, groupName: String, groupDescription: String, story: String): Personality {
-        val input = "Sapendo che il mondo di gioco è descritto da questo contesto ${context.toMap()}, e sapendo che il gruppo a cui appartiene questo personaggio è $groupName "+
-                ", che i personaggi che appartengono a questo gruppo sono così descritti: \"$groupDescription\" e che la storia del giocatore è \"$story\", creami una personalità "+
-                "di questo personaggio basandoti su questo json schema: "+readFile("C:\\Users\\danie\\Documents\\Tesi\\TesiBackEnd\\src\\main\\kotlin\\esample\\calcio\\npc\\jsonSchema\\footballerPersonality.json")+" senza aggiungere nessun'altra parola"
-        val json = removeOutsideBraces(sendSingleText(input))
+    private fun generatePersonality(characterInfo: Map<String, Any>, comments: Map<String, String>): Personality {
+        val m = characterInfo.toMutableMap()
+        m["prompt"] = "date tutte queste informazioni riguardanti il personaggio generami una sua personalità e restituisci solo il jason che è compliant a questo schema "+readFile("..\\jsonSchema\\footballerPersonality.json")
+
+        val json = removeOutsideBraces(sendSingleText(createXml("request",m, comments)))
         return Json.decodeFromString<FootballerPersonality>(json)
     }
 
-    private fun generateMood(context: Knowledge, groupName: String, groupDescription: String, story: String, personality: Personality, events: List<Event>): Mood {
-        val input = "Sapendo che il mondo di gioco è descritto da questo contesto ${context.toMap()}, e sapendo che il gruppo a cui appartiene questo personaggio è $groupName "+
-                ", che i personaggi che appartengono a questo gruppo sono così descritti: \"$groupDescription\", che la storia del giocatore è \"$story\", che la sua personalità "+
-                "è descritta da questo oggetto: \"${personality.toMap()}\" e che gli eventi accaduti nel corso del tempo sono questo così descritti \"$events\", creami un mood di quel momento "+
-                "di questo personaggio, che è un oggetto json che è descritto dallo schema: "+readFile("C:\\Users\\danie\\Documents\\Tesi\\TesiBackEnd\\src\\main\\kotlin\\esample\\calcio\\npc\\jsonSchema\\simpleMood.json")+
-                ". Senza aggiungere nient'altro, voglio solo l'oggetto json: {..} "
-        val json = removeOutsideBraces(sendSingleText(input))
+    private fun generateMood(characterInfo: Map<String, Any>, comments: Map<String, String>): Mood {
+        val m = characterInfo.toMutableMap()
+        m["prompt"] = "date tutte queste informazioni riguardanti il personaggio generami una suo mood e restituisci solo il jason che è compliant a questo schema "+readFile("..\\jsonSchema\\simpleMood.json")
+
+        val json = removeOutsideBraces(sendSingleText(createXml("request", m, comments)))
         //println("MOOD: $json")
         return Json.decodeFromString<SimpleMood>(json)
     }
 
     private fun generateThoughtOnPlayer(eventHistory: List<Event>, commonThought: CommonThought): CommonThought {
-        val input = "sapendo che il pensiero comune sul giocatore da parte del gruppo è il seguente: $commonThought, e che la lista degli eventi generati del giocatore è : $eventHistory, "+
-                    "generami un pensiero del personaggio sul giocatore che segue in formato json, descritto da: {_affection: {type: \"float\", min=-1, max=1}, _stress: {type: \"float\", min=-1, max=1}, _anger: {type: \"float\", min=-1, max=1}}"+
-                    "Senza aggiungere nient'altro, voglio solo l'oggetto json: {..}"
+        val input = """
+            <request>
+                <commonThought>${commonThought.toMap()}</commonThought>
+                <eventHistory>${eventHistory.map { it.toMap() }}</eventHistory>
+                <responseFormat>
+                    <json>
+                        <field name="_respect" type="float" min="-1" max="1"/>
+                        <field name="_affection" type="float" min="-1" max="1"/>
+                        <field name="_anger" type="float" min="-1" max="1"/>
+                    </json>
+                </responseFormat>
+            </request>
+
+        """.trimIndent()
         val json = removeOutsideBraces(sendSingleText(input))
         //println("MOOD: $json")
         return Json.decodeFromString<CommonThoughtImpl>(json)
     }
 
-    override fun startNPC(npc: NPC) {
-        if(npc.name == null || npc.age == null) {
+    override fun startNPC(map: MutableMap<String, Any>, comments: Map<String, String>, npc: NPC) {
+        val character: MutableMap<String, Any?> = map["character"] as MutableMap<String, Any?>
+        val d = (character["details"]as MutableMap<String, Any?>)
+        if(d["name"] == null || d["age"] == null) {
             val ret = generateNameAndAge()
-            if(npc.name == null) npc.setName(ret.first)
-            if(npc.age == null) npc.setAge(ret.second)
+            if(d["name"] == null){ d["name"] = ret.first; npc.setName(ret.first)}
+            if(d["age"] == null) {d["age"] = ret.second; npc.setAge(ret.second)}
         }
-        if(npc.story == null) npc.setStory(generateStory(npc.name!!, npc.age!!, npc.context, npc.group.name, npc.group.description))
-        if(npc.personality == null) npc.setPersonality(generatePersonality(npc.context, npc.group.name, npc.group.description, npc.story!!))
-        if(npc.mood == null) npc.setMood(generateMood(npc.context, npc.group.name, npc.group.description, npc.story!!, npc.personality!!, npc.group.getEventHistory()))
-        if(npc.thoughtOnPlayer == null) npc.setThoughtOnPlayer(generateThoughtOnPlayer(npc.group.getEventHistory(), npc.group.commonThought))
+        if(d["personalStory"] == null) {
+            val story = generateStory(map, comments)
+            d["personalStory"] = story
+            npc.setStory(story)
+        }
+        if(character["personality"] == null){
+            val p = generatePersonality(map, comments)
+            npc.setPersonality(p)
+            character["personality"] = p
 
-        val map = mutableMapOf<String, Any>()
-        val character = mutableMapOf<String, Any>()
-        character["details"] = mapOf(
-            "name" to npc.name,
-            "age" to npc.age,
-            "group" to mapOf("name" to npc.group.name, "description" to npc.group.description),
-            "personalStory" to npc.story,
-        )
-        character["tasks"] = npc.tasks.map { task -> task.toMap() }
-        character["personality"] = npc.personality!!.toMap()
-        character["mood"] = npc.mood!!.toMap()
-        character["thoughtOnPlayer"] = npc.thoughtOnPlayer!!.toMap()
-        map["character"] = character
-        map["context"] = npc.context.toMap()
-        map["events"] = events.map { event -> event.toMap() }
+        }
+        if(character["mood"] == null) {
+            val m = generateMood(map, comments)
+            npc.setMood(m)
+            character["mood"] = m
+        }
+        if(character["thoughtOnPlayer"] == null) {
+            val t = generateThoughtOnPlayer(npc.group.getEventHistory(), npc.group.commonThought)
+            npc.setThoughtOnPlayer(t)
+            character["thoughtOnPlayer"] = t
+        }
+
         map["prompt"] = "Da qui in avanti tu interpreterai il personaggio descritto in character, che vive in un mondo definito in context e deve non solo reagire, coerentemente alla sua personalità, a tutti gli eventi ma anche parlarne pro attivamente in base alla tipologia e all'importanza e risponderai a me che sono l'allenatore della squadra"
-        val comments = mapOf<String, String>(
-            "tasks" to "i task definiscono i compiti dell'NPC che dovrà svolgere",
-            "personality" to "su una scala da 1 a 10",
-            "mood" to "su una scala da 0 a 1",
-            "group" to "il group a cui appartiene un NPC è una astrazione di un gruppo sociale, ad esempio: Calciatori, Staff Tecnico, Dirigenti e Staff di Supporto",
-            "personalStory" to "qui si va a descrivere la storia dell'NPC",
-            "globalContext" to "global definisce il contesto globale del mondo del calcio",
-            "localContext" to "local definisce il contesto della squadra del giocatore",
-            "actualContext" to "actual definisce il contesto in cui il giocatore inizia a giocare",
-            "metaContext" to "queste sono delle informazioni sul role play che tu devi rispettare sempre e utilizzare, se ad esempio c'è scritto che l'utente è l'allenatore allora ogni volta che stai parlando con lui e trovi la scritta allenatore dentro la descrizione di un evento allora è stato l'utente a generare l'evento ",
-            "events" to "Interpreta la descrizione e, ad esempio, se un evento riguarda l'allenatore e stai parlando con l'allenatore comportati di conseguenza e fai domande sull'evento",
-            "action" to "Sono delle decisioni o azioni che si deve prendere in determinati casi. Esempio: se il presidente ha un obiettivo a breve termine che deve decidere se esonerare o meno l'allenatore dopo una partita allora si deve seguire il valore di action, se c'è che viene esonerato dopo sconfitta allora il presidente lo farà",
-            "thoughtOnPlayer" to "è il pensiero di questo NPC sul giocatore"
-        )
+
         val initialize = createXml("request", map, comments)
         messages.add(Message(Role.system, initialize))
         started = true
         this.events.addAll(events)
-
         this.npc = npc
     }
 
@@ -333,12 +332,14 @@ class GPTEngine: NPCEngine {
     }
 
     override fun addDetails(detail: Map<String, Any>, comments: Map<String, String>) {
-        val map = detail.toMutableMap()
-        map["prompt"] = "Ci sono alcune informazioni da aggiungere alla conoscenza di questo personaggio"
         messages.add(Message(Role.system, createXml("request", detail, comments)))
     }
 
-    override fun receiveEvent(event: Event, newMood: Mood, thoughtOnPlayer: CommonThought) {
-        messages.add(Message(Role.system, "Un nuovo evento, così descritto: \"${event.toMap()}\", il pensiero sul giocatore è così cambiato: \"$thoughtOnPlayer\"  e lui deve comportarsi coerentemente al suo nuovo mood ${newMood.toMap()} e alla sua personalità in risposta ad esso"))
+    override fun receiveEvent(event: Event, newMood: Mood, newThoughtOnPlayer: CommonThought) {
+        messages.add(Message(
+            Role.system,
+            createXml("event ",event.toMap(), mapOf())
+            )
+        )
     }
 }

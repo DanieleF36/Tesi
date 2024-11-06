@@ -20,7 +20,7 @@ interface NPCEngine {
      * a mood of the NPC
      * an events is the list of all the relevant event happened
      */
-    fun startNPC(npc: NPC)
+    fun startNPC(map: MutableMap<String, Any>, comments: Map<String, String>, npc: NPC)
     /**
      * @param input is what the user wants to say to the NPC
      * @return the answer to that input
@@ -31,11 +31,10 @@ interface NPCEngine {
      * @return an event that was generated with this conversation or null if the whole conversation is meaningless
      */
     fun generateEvent(): LocalEvent
-
     /**
      * This function will let know the NPC about this event
      */
-    fun receiveEvent(event: Event, newMood: Mood, thoughtOnPlayer: CommonThought)
+    fun receiveEvent(event: Event, newMood: Mood, newThoughtOnPlayer: CommonThought)
     /**
      * The goal of this function is to add some detail to what the NPC know and some comment on it
      * @param detail is a map defined as tag: tagValue

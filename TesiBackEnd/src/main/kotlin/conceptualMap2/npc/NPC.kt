@@ -72,9 +72,11 @@ abstract class NPC (
     init {
         DaggerMyComponent.create().inject(this)
         group.attach(this)
-        engine.startNPC(this)
     }
-
+    /**
+     * this function will initialize allowing the user to talk with it
+     */
+    protected abstract fun initialize()
     /**
      * @param input is what the user wants to say to the NPC
      * @return the answer to that input

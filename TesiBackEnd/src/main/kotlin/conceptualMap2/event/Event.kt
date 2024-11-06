@@ -1,6 +1,8 @@
 package conceptualMap2.event
 
+import conceptualMap2.conceptualMap.CommonThought
 import conceptualMap2.npc.Mood
+import esample.calcio.conceptualMap.CommonThoughtImpl
 import kotlinx.serialization.Serializable
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -24,11 +26,24 @@ abstract class Event(
         return "description=$description, type=$type, importance=$importance, generatedTime=${generatedTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))}"
     }
 
-    open fun toMap(): Map<String, Any?> {
-        val map = mutableMapOf<String, Any?>()
+    open fun toMap(): Map<String, Any> {
+        val map = mutableMapOf<String, Any>()
         map["type"] = type
         map["importance"] = importance
         map["description"] = description
+        val s = statistic.toMap()
+        for((key, value) in map) {
+            map.remove(key)
+            map["$key change="] = value
+        }
+        val ct = CommonThoughtImpl(0f,0f,0f)
+        ct.update(statistic)
+        val c = ct.toMap().toMutableMap()
+        for((key, value) in c) {
+            c.remove(key)
+            c["$key change="] = value
+        }
+        map["impact"] = mapOf<String, Any>("mood" to s, "CommonThought" to c)
         return map
     }
 }

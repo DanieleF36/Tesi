@@ -36,18 +36,48 @@ class Footballer(
     private val transfer: List<Transfer>,
     private val role: GameRole
 ) : NPC(_age = age, _name=name, group=group, context=context, _story=story, _personality=personality, tasks=tasks, _mood=mood, _thoughtOnPlayer=thoughtOnPlayer) {
-    private val carrierStat: PlayerStats
-    init{
-        carrierStat = computeCarrierStat()
+
+    override fun initialize() {
+        val carrierStat = computeCarrierStat()
         val map = mutableMapOf<String, Any>()
-        map["thoughtOnPlayer"] = thoughtOnPlayer.toMap()
+        val character = mutableMapOf<String, Any?>()
+        character["details"] = mapOf<String, Any?>(
+            "name" to name,
+            "age" to age,
+            "group" to mapOf("name" to group.name, "description" to group.description),
+            "personalStory" to story,
+        )
+        character["tasks"] = tasks.map { task -> task.toMap() }
+        character["personality"] = personality?.toMap()
+        character["mood"] = mood?.toMap()
+        character["thoughtOnPlayer"] = thoughtOnPlayer?.toMap()
+        map["character"] = character
+        map["context"] = context.toMap()
+        map["events"] = group.getEventHistory().map { event -> event.toMap() }
+        map["thoughtOnPlayer"] = thoughtOnPlayer!!.toMap()
         map["thoughtsOnOthers"] = thoughtsOnOthers
         map["carrierStats"] = carrierStat.toMap()
         map["nationalStats"] = nationalStats.toMap()
         map["actualSeasonStats"] = seasonalStats.last().toMap()
         map["transfer"] = transfer.map{ it.toMap()}
         map["role"] = role.toString()
-        engine.addDetails(map, mapOf())
+
+        val comments = mapOf<String, String>(
+            "tasks" to "i task definiscono i compiti dell'NPC che dovrà svolgere",
+            "personality" to "su una scala da 1 a 10",
+            "mood" to "su una scala da 0 a 1",
+            "group" to "il group a cui appartiene un NPC è una astrazione di un gruppo sociale, ad esempio: Calciatori, Staff Tecnico, Dirigenti e Staff di Supporto",
+            "personalStory" to "qui si va a descrivere la storia dell'NPC",
+            "globalContext" to "global definisce il contesto globale del mondo del calcio",
+            "localContext" to "local definisce il contesto della squadra del giocatore",
+            "actualContext" to "actual definisce il contesto in cui il giocatore inizia a giocare",
+            "metaContext" to "queste sono delle informazioni sul role play che tu devi rispettare sempre e utilizzare, se ad esempio c'è scritto che l'utente è l'allenatore allora ogni volta che stai parlando con lui e trovi la scritta allenatore dentro la descrizione di un evento allora è stato l'utente a generare l'evento ",
+            "events" to "Interpreta la descrizione e, ad esempio, se un evento riguarda l'allenatore e stai parlando con l'allenatore comportati di conseguenza e fai domande sull'evento",
+            "action" to "Sono delle decisioni o azioni che si deve prendere in determinati casi. Esempio: se il presidente ha un obiettivo a breve termine che deve decidere se esonerare o meno l'allenatore dopo una partita allora si deve seguire il valore di action, se c'è che viene esonerato dopo sconfitta allora il presidente lo farà",
+            "thoughtOnPlayer" to "è il pensiero di questo NPC sul giocatore"
+        )
+
+        engine.startNPC(map, comments, this)
     }
 
     override fun endConversation() {
@@ -69,6 +99,7 @@ class Footballer(
                     is GlobalEvent -> globalEvent(evt)
                     else -> TODO("Not supported yet")
                 }
+                thoughtOnPlayer!!.update(event.statistic)
                 engine.receiveEvent(evt, mood!!, thoughtOnPlayer!!)
                 tasks.forEach { it.action(evt) }
                 group.receivedEventFromNpc(this, event)
