@@ -16,7 +16,7 @@ class GlobalEvent(
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))}"
     }
 
-    override fun toMap(): Map<String, Any?> {
+    override fun toMap(): Map<String, Any> {
         val ret = super.toMap().toMutableMap()
         ret.remove("personGenerated")
         return ret.toMap()

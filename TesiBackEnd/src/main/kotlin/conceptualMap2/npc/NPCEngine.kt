@@ -30,7 +30,7 @@ interface NPCEngine {
     /**
      * @return an event that was generated with this conversation or null if the whole conversation is meaningless
      */
-    fun generateEvent(): LocalEvent
+    fun generateEvent(): Event
     /**
      * This function will let know the NPC about this event
      */

@@ -1,15 +1,17 @@
 package esample.calcio.npc.engine
 
+import conceptualMap2.clock.Clock
 import conceptualMap2.conceptualMap.CommonThought
 import conceptualMap2.event.Event
 import conceptualMap2.event.EventImportance
 import conceptualMap2.event.EventType
+import conceptualMap2.event.LocalDateTimeSerializer
 import conceptualMap2.event.LocalEvent
+import conceptualMap2.event.PureEvent
 import conceptualMap2.exceptions.NPCNotStartedException
 import conceptualMap2.npc.Mood
 import conceptualMap2.npc.NPC
 import conceptualMap2.npc.NPCEngine
-import conceptualMap2.npc.knowledge.Knowledge
 import conceptualMap2.npc.Personality
 import esample.calcio.conceptualMap.CommonThoughtImpl
 import esample.calcio.event.impl.FootballEI
@@ -17,21 +19,27 @@ import esample.calcio.event.impl.FootballET
 import esample.calcio.npc.footballer.personality.FootballerPersonality
 import esample.calcio.npc.footballer.personality.SimpleMood
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.descriptors.buildClassSerialDescriptor
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.float
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
+import kotlinx.serialization.serializer
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
 import org.w3c.dom.Document
-import java.beans.Encoder
 import java.io.StringWriter
 import java.util.concurrent.TimeUnit
 import javax.xml.parsers.DocumentBuilderFactory
@@ -180,7 +188,7 @@ class GPTEngine: NPCEngine {
             character["mood"] = m
         }
         if(character["thoughtOnPlayer"] == null) {
-            val t = generateThoughtOnPlayer(npc.group.getEventHistory(), npc.group.commonThought)
+            val t = generateThoughtOnPlayer(npc.group.getEventHistory(), npc.group.commonThoughtOnPlayer)
             npc.setThoughtOnPlayer(t)
             character["thoughtOnPlayer"] = t
         }
@@ -246,16 +254,28 @@ class GPTEngine: NPCEngine {
 
     }
 
-    override fun generateEvent(): LocalEvent {
+    private fun convertType(type: String): FootballET{
+        when(type.lowercase()){
+            "rabbia" -> return FootballET.RABBIA
+            "fiducia o incoraggiamento" -> return FootballET.FIDUCIA
+            "perdita di fiducia o autostima" -> return FootballET.SFIDUCIA
+            "critica" -> return FootballET.CRITICA
+            "rabbia" -> return FootballET.RABBIA
+            "frustazione" -> return FootballET.FRUSTAZIONE
+            else -> TODO("Not implemented yet")
+        }
+    }
+
+    override fun generateEvent(): Event {
         val msg = Message(
             Role.system,
             """
              Sei un analista di conversazioni sportive. 
              Analizza la seguente conversazione e restituisci un JSON con i seguenti campi: 
-            'evento', 'importanza', 'felicità', 'rabbia', 'stress' e 'description'. 
+            'type', 'importance', '_satisfaction', '_anger', '_stress' e 'description'. 
              L'evento deve essere scelto tra: Fiducia o Incoraggiamento; Perdita di fiducia o Autostima; Critica, Rabbia; Frustazione; 
              L'importanza deve essere scelta tra: Banale, Normale, Importante, Cruciale. 
-             I valori di 'felicità', 'rabbia' e 'stress' devono rispettare i seguenti vincoli numerici: 
+             I valori di '_satisfaction', '_anger' e '_stress' devono rispettare i seguenti vincoli numerici: 
              ogni valore deve essere compreso tra -3.0 e 3.0. 
              La somma dei valori assoluti di 'felicità', 'rabbia' e 'stress' deve rispettare i seguenti limiti: 
              se l'importanza è 'Banale', la somma deve essere ≤ 2; 
@@ -275,18 +295,37 @@ class GPTEngine: NPCEngine {
         map["dialog"] = dm
         val m = Message(Role.user, createXml("Conversation", map, mapOf()))
         val event = sendRequest(listOf(msg, m), "gpt-4")
-        val json = Json {
-            serializersModule = SerializersModule {
-                polymorphic(EventType::class) {
-                    subclass(FootballET::class, FootballETSerializer)
-                }
-                polymorphic(EventImportance::class){
-                    subclass(FootballEI::class, FootballEISerializer)
-                }
-            }
-        }
 
-        return json.decodeFromString(event)
+        val obj = Json.parseToJsonElement(event).jsonObject
+        if(npc!!.group.name.lowercase() == "staff tecnico")
+            return LocalEvent(
+                type = convertType(obj["type"]!!.jsonPrimitive.content),
+                importance = convertImportance(obj["importance"]!!.jsonPrimitive.content),
+                statistic = SimpleMood(obj["_satisfaction"]!!.jsonPrimitive.float, obj["_stress"]!!.jsonPrimitive.float, obj["_anger"]!!.jsonPrimitive.float),
+                description = obj["description"]!!.jsonPrimitive.content,
+                generatedTime = Clock.getCurrentDateTime(),
+                personGenerated = npc!!
+            )
+        else
+            return PureEvent(
+                type = convertType(obj["type"]!!.jsonPrimitive.content),
+                importance = convertImportance(obj["importance"]!!.jsonPrimitive.content),
+                statistic = SimpleMood(obj["_satisfaction"]!!.jsonPrimitive.float, obj["_stress"]!!.jsonPrimitive.float, obj["_anger"]!!.jsonPrimitive.float),
+                description = obj["description"]!!.jsonPrimitive.content,
+                generatedTime = Clock.getCurrentDateTime(),
+                personGenerated = npc!!,
+                generationPlace =
+            )
+    }
+
+    private fun convertImportance(importance: String): FootballEI{
+        when(importance.lowercase()){
+            "banale" -> return FootballEI.BANALE
+            "normale" -> return FootballEI.NORMALE
+            "importante" -> return FootballEI.IMPORTANTE
+            "cruciale" -> return FootballEI.CRUCIALE
+            else -> TODO("Not implemented yet")
+        }
     }
 
     private object FootballETSerializer : KSerializer<FootballET> {

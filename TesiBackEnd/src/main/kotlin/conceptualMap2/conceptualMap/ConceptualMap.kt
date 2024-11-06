@@ -3,18 +3,19 @@ package conceptualMap2.conceptualMap
 import conceptualMap2.event.Event
 import conceptualMap2.event.GlobalEvent
 import conceptualMap2.event.LocalEvent
-import conceptualMap2.exceptions.*
+import conceptualMap2.event.PureEvent
 import conceptualMap2.npc.NPC
 
 /**
  * @param name this is the name of the group that will identify an object
  * @param description this is the general description of an NPC that live in this group
- * @param commonThought this is the common thought of every NPC on the player
+ * @param commonThoughtOnPlayer this is the common thought of every NPC on the player
  */
 abstract class ConceptualMap (
     val name: String,
     val description: String,
-    val commonThought: CommonThought,
+    val commonThoughtOnPlayer: CommonThought,
+    val commonThoughtOnGroups: Collection<Pair<String, CommonThought>>,
     val fellowship: Fellowship
 ) {
     protected val npcs = mutableListOf<NPC>()
@@ -36,6 +37,8 @@ abstract class ConceptualMap (
      * @param propagation if true the event will be propagated to the other linked groups
      */
     abstract fun generateEvent(event: LocalEvent, propagation: Boolean = true)
+
+    abstract fun generateEvent(event: PureEvent, propagation: Boolean = true)
     /**
      * @param event is a global event that was generated in the world
      */

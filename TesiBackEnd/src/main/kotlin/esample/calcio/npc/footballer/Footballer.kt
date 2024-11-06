@@ -8,6 +8,7 @@ import conceptualMap2.conceptualMap.Fellowship
 import conceptualMap2.event.Event
 import conceptualMap2.event.GlobalEvent
 import conceptualMap2.event.LocalEvent
+import conceptualMap2.event.PureEvent
 import conceptualMap2.npc.Mood
 import conceptualMap2.npc.task.Task
 import conceptualMap2.npc.knowledge.Knowledge
@@ -84,7 +85,10 @@ class Footballer(
         val event = engine.generateEvent()
         _mood = _mood!!.update(event.statistic)
         //println("Il mood di $_name è cambiato, diventando $mood, in seguito all'evento: ${event.description}")
-        group.generateEvent(event)
+        if(event is LocalEvent )
+            group.generateEvent(event)
+        else if(event is PureEvent)
+            group.generateEvent(event)
         tasks.forEach { it.action(event) }
     }
 
@@ -237,7 +241,6 @@ class Footballer(
         return moodChange.update(mood!!)
 
     }
-
 
     private fun globalEvent(evt: GlobalEvent): Mood{
         return evt.statistic.update(mood!!)

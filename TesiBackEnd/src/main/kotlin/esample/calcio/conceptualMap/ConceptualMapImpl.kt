@@ -1,14 +1,19 @@
 package esample.calcio.conceptualMap
 
-import conceptualMap2.clock.TimerEvent
 import conceptualMap2.conceptualMap.*
 import conceptualMap2.event.Event
-import conceptualMap2.exceptions.EventGeneratedInAnotherGroupException
 import conceptualMap2.event.GlobalEvent
 import conceptualMap2.event.LocalEvent
+import conceptualMap2.event.PureEvent
 import conceptualMap2.npc.NPC
 
-class ConceptualMapImpl(name: String, description: String, commonThought: CommonThought, fellowship: Fellowship) : ConceptualMap(name, description, commonThought, fellowship) {
+class ConceptualMapImpl(
+    name: String,
+    description: String,
+    commonThought: CommonThought,
+    commonThoughtOnGroups: Collection<Pair<String, CommonThought>>,
+    fellowship: Fellowship
+) : ConceptualMap(name, description, commonThought, commonThoughtOnGroups, fellowship) {
     private val events: MutableList<Pair<Event, Int>> = mutableListOf()
     private val links = mutableSetOf<Link>()
     private val propagationList = mutableListOf<PropagateEventWhen>()
@@ -30,7 +35,26 @@ class ConceptualMapImpl(name: String, description: String, commonThought: Common
             event = event,
             condition = { events.find { it.first == event }!!.second >= npcs.size/2f},
             propagate = {
-                commonThought.update(event.statistic)
+                commonThoughtOnPlayer.update(event.statistic)
+                if(propagation) {
+                    for (link in links) {
+                        link.propagate(event)
+                    }
+                }
+            }
+        ))
+
+        notifyObservers(event)
+    }
+
+    override fun generateEvent(event: PureEvent, propagation: Boolean) {
+        events.add(Pair(event, 0))
+        propagationList.add(PropagateEventWhen(
+            event = event,
+            condition = { events.find { it.first == event }!!.second >= npcs.size/2f},
+            propagate = {
+                commonThoughtOnPlayer.update(event.statistic)
+                commonThoughtOnGroups.find { it.first.lowercase() == "staff tecnico" }!!.second.update(event.statistic)
                 if(propagation) {
                     for (link in links) {
                         link.propagate(event)
@@ -53,7 +77,7 @@ class ConceptualMapImpl(name: String, description: String, commonThought: Common
     override fun receiveGlobalEvent(event: GlobalEvent) {
         //Tutti hanno ricevuto l'evento
         events.add(Pair(event, npcs.size))
-        commonThought.update(event.statistic)
+        commonThoughtOnPlayer.update(event.statistic)
         notifyObservers(event)
         //println("In seguito ad aver ricevuto l'evento globale ${event.description}, il pensiero comune di $name è cambiato in $commonThought")
     }
