@@ -3,8 +3,6 @@ package conceptualMap2.conceptualMap
 import conceptualMap2.event.Event
 import conceptualMap2.event.GlobalEvent
 import conceptualMap2.event.LocalEvent
-import conceptualMap2.event.PropagatedEvent
-import observerInterfaces.push.Subject
 import conceptualMap2.exceptions.*
 import conceptualMap2.npc.NPC
 
@@ -18,7 +16,8 @@ abstract class ConceptualMap (
     val description: String,
     val commonThought: CommonThought,
     val fellowship: Fellowship
-): Subject {
+) {
+    protected val npcs = mutableListOf<NPC>()
     /**
      * @return the collection of all the possible event generated or propagated in this group, sorted by time. i.e. the last event in the list will be the last generated
      */
@@ -35,19 +34,26 @@ abstract class ConceptualMap (
     /**
      * @param event is the one that will be generated inside the group amd the only one that is allowed to modify the common thought
      * @param propagation if true the event will be propagated to the other linked groups
-     * @throws EventGeneratedInAnotherGroupException
      */
     abstract fun generateEvent(event: LocalEvent, propagation: Boolean = true)
-    /**
-     * @param event is the one that was generated into a different group and later propagated to this one
-     */
-    abstract fun receiveEvent(event: PropagatedEvent)
     /**
      * @param event is a global event that was generated in the world
      */
     abstract fun receiveGlobalEvent(event: GlobalEvent)
+    /**
+     * this function is used to inform that a npc received correctly the event
+     */
+    abstract fun receivedEventFromNpc(npc: NPC, event: Event)
 
     abstract fun generateNPC(): NPC
+
+    fun attach(npc: NPC){
+        npcs.add(npc)
+    }
+
+    fun detach(npc: NPC){
+        npcs.remove(npc)
+    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other)

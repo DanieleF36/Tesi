@@ -3,7 +3,7 @@ package esample.calcio.link
 import conceptualMap2.conceptualMap.ConceptualMap
 import conceptualMap2.conceptualMap.Link
 import conceptualMap2.event.Event
-import conceptualMap2.event.PropagatedEvent
+import conceptualMap2.event.LocalEvent
 
 /**
  * @param a the link through the other node
@@ -12,12 +12,12 @@ import conceptualMap2.event.PropagatedEvent
  */
 class LinkUnidirectional(
     a: ConceptualMap,
-    val weight: (event: Event) -> PropagatedEvent,
+    val weight: (event: Event) -> LocalEvent,
     val filter: (event: Event) -> Boolean
 ): Link(a) {
     override fun propagate(event: Event) {
         if(!filter(event))
-            a.receiveEvent(weight(event))
+            a.generateEvent(weight(event))
     }
 
     override fun equals(other: Any?): Boolean {

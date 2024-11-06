@@ -2,11 +2,10 @@ package conceptualMap2.npc
 
 import conceptualMap2.conceptualMap.CommonThought
 import conceptualMap2.conceptualMap.ConceptualMap
-import conceptualMap2.event.LocalEvent
+import conceptualMap2.event.Event
 import conceptualMap2.moduleDagger2.*
 import conceptualMap2.npc.task.Task
 import conceptualMap2.npc.knowledge.Knowledge
-import observerInterfaces.push.Observer
 import java.io.Closeable
 import javax.inject.Inject
 
@@ -30,7 +29,7 @@ abstract class NPC (
     val tasks: MutableList<Task> = mutableListOf(),
     protected var _mood: Mood? = null,
     protected var _thoughtOnPlayer: CommonThought?,
-): Observer, Closeable {
+): Closeable {
     companion object {protected var idNpc = 0}
     @Inject lateinit var engine: NPCEngine
     val age: Int?
@@ -108,6 +107,5 @@ abstract class NPC (
         group.detach(this)
     }
 
-    //for debug
-    abstract fun addEvent(event: LocalEvent)
+    abstract fun addEvent(event: Event)
 }
