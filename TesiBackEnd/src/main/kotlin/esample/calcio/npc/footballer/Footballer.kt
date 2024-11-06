@@ -17,6 +17,7 @@ import esample.calcio.npc.footballer.personality.FootballerPersonality
 import esample.calcio.npc.footballer.personality.WeighedMood
 import java.time.Duration
 import java.time.temporal.ChronoUnit
+import kotlin.random.Random
 
 class Footballer(
     name: String? = null,
@@ -135,8 +136,8 @@ class Footballer(
                     else -> TODO()
                 } * .5f)
             else TODO()
-
-            return Duration.of(((1f/p)*1500).toLong(), ChronoUnit.MINUTES)
+            val minutes = ((1f/p)*1500).toLong()+Random.nextInt(-5, 5)
+            return Duration.of(minutes, ChronoUnit.MINUTES)
         }
     }
 

@@ -10,11 +10,11 @@ import java.time.temporal.ChronoUnit
  */
 open class TimerEvent(
     val event: Event,
-    val waitingTime: Duration?,
+    val waitingTime: Duration,
     val cb: () -> Unit
 ): Observer {
     override fun update() {
-        if(waitingTime != null && ChronoUnit.SECONDS.between(event.generatedTime.plus(waitingTime), Clock.getCurrentDateTime()) <=0)
+        if( ChronoUnit.SECONDS.between(event.generatedTime.plus(waitingTime), Clock.getCurrentDateTime()) <=0)
             cb()
     }
 }
