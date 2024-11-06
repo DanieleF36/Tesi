@@ -17,6 +17,7 @@ abstract class Event(
     val importance: EventImportance,
     val statistic: Mood,
     val description: String,
+    @Serializable(with = LocalDateTimeSerializer::class)
     val generatedTime: LocalDateTime
 ): Cloneable {
     override fun toString(): String {
