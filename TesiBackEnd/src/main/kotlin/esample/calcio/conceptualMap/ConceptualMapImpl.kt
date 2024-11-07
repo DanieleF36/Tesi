@@ -2,6 +2,7 @@ package esample.calcio.conceptualMap
 
 import conceptualMap2.conceptualMap.*
 import conceptualMap2.event.Event
+import conceptualMap2.exceptions.EventGeneratedInAnotherGroupException
 import conceptualMap2.event.GlobalEvent
 import conceptualMap2.event.LocalEvent
 import conceptualMap2.event.PureEvent
@@ -14,6 +15,7 @@ class ConceptualMapImpl(
     commonThoughtOnGroups: Collection<Pair<String, CommonThought>>,
     fellowship: Fellowship
 ) : ConceptualMap(name, description, commonThought, commonThoughtOnGroups, fellowship) {
+    //Pair<Event, n# of npc who has received it>
     private val events: MutableList<Pair<Event, Int>> = mutableListOf()
     private val links = mutableSetOf<Link>()
     private val propagationList = mutableListOf<PropagateEventWhen>()
@@ -63,6 +65,10 @@ class ConceptualMapImpl(
             }
         ))
         notifyObservers(event)
+    }
+
+    override fun generateRandomEvent(npc1: NPC, npc2: NPC) {
+        npc1.generateRandomEvent(npc2)
     }
 
     override fun receivedEventFromNpc(npc: NPC, event: Event) {
