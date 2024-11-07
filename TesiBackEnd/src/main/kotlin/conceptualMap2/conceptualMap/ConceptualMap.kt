@@ -5,6 +5,7 @@ import conceptualMap2.event.GlobalEvent
 import conceptualMap2.event.LocalEvent
 import conceptualMap2.exceptions.*
 import conceptualMap2.npc.NPC
+import kotlin.random.Random
 
 /**
  * @param name this is the name of the group that will identify an object
@@ -36,6 +37,21 @@ abstract class ConceptualMap (
      * @param propagation if true the event will be propagated to the other linked groups
      */
     abstract fun generateEvent(event: LocalEvent, propagation: Boolean = true)
+    /**
+     * this function will generate a random event between 2 random NPCs based on their relationship and personality
+     */
+    open fun generateRandomEvent(){
+        val index1 = Random.nextInt(npcs.size)
+        var index2 = Random.nextInt(npcs.size)
+        while(index2 == index1){
+            index2 = Random.nextInt(npcs.size)
+        }
+        generateRandomEvent(npcs[index1], npcs[index2])
+    }
+    /**
+     * this function will generate a random event between npc1 and npc2 based on their relationship and personality
+     */
+    abstract fun generateRandomEvent(npc1: NPC, npc2: NPC)
     /**
      * @param event is a global event that was generated in the world
      */

@@ -82,11 +82,16 @@ abstract class NPC (
      * @return the answer to that input
      */
     open fun insertTextInput(input: String): String = engine.talk(input)
-
     /**
      * this function will end the conversation and generate an event that will be propagated
      */
-     abstract fun endConversation()
+    abstract fun endConversation()
+    /**
+     * this function will generate a random event between this and npc
+     */
+    abstract fun generateRandomEvent(npc: NPC)
+
+    abstract fun toMap(): Map<String, Any>
 
     override fun equals(other: Any?): Boolean {
         if (this === other)

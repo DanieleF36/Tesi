@@ -1,5 +1,6 @@
 package esample.calcio.npc.engine
 
+import conceptualMap2.clock.Clock
 import conceptualMap2.conceptualMap.CommonThought
 import conceptualMap2.event.Event
 import conceptualMap2.event.EventImportance
@@ -9,7 +10,6 @@ import conceptualMap2.exceptions.NPCNotStartedException
 import conceptualMap2.npc.Mood
 import conceptualMap2.npc.NPC
 import conceptualMap2.npc.NPCEngine
-import conceptualMap2.npc.knowledge.Knowledge
 import conceptualMap2.npc.Personality
 import esample.calcio.conceptualMap.CommonThoughtImpl
 import esample.calcio.event.impl.FootballEI
@@ -23,6 +23,9 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.float
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import okhttp3.MediaType.Companion.toMediaType
@@ -31,7 +34,6 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
 import org.w3c.dom.Document
-import java.beans.Encoder
 import java.io.StringWriter
 import java.util.concurrent.TimeUnit
 import javax.xml.parsers.DocumentBuilderFactory
@@ -58,7 +60,7 @@ class GPTEngine: NPCEngine {
         try{
             val client = OkHttpClient().newBuilder().readTimeout(30, TimeUnit.SECONDS).build()
             val mediaType = "application/json".toMediaType()
-            val body = Json.encodeToString(PostBody("gpt-4o-mini", msg)).toRequestBody(mediaType)
+            val body = Json.encodeToString(PostBody(model, msg)).toRequestBody(mediaType)
             val request = Request.Builder()
                 .url(URL)
                 .post(body)
@@ -193,7 +195,7 @@ class GPTEngine: NPCEngine {
         this.events.addAll(events)
         this.npc = npc
     }
-
+    //TODO migliorare
     private fun createXml(rootTag: String, map: Map<String, Any>, comments: Map<String, String>): String {
         val document: Document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument()
         val root = document.createElement(rootTag)
@@ -252,20 +254,20 @@ class GPTEngine: NPCEngine {
             """
              Sei un analista di conversazioni sportive. 
              Analizza la seguente conversazione e restituisci un JSON con i seguenti campi: 
-            'evento', 'importanza', 'felicità', 'rabbia', 'stress' e 'description'. 
+            'evento', 'importanza', '_satisfaction', '_anger', '_stress' e 'description'. 
              L'evento deve essere scelto tra: Fiducia o Incoraggiamento; Perdita di fiducia o Autostima; Critica, Rabbia; Frustazione; 
              L'importanza deve essere scelta tra: Banale, Normale, Importante, Cruciale. 
-             I valori di 'felicità', 'rabbia' e 'stress' devono rispettare i seguenti vincoli numerici: 
+             I valori di '_satisfaction', '_anger' e '_stress' devono rispettare i seguenti vincoli numerici: 
              ogni valore deve essere compreso tra -3.0 e 3.0. 
-             La somma dei valori assoluti di 'felicità', 'rabbia' e 'stress' deve rispettare i seguenti limiti: 
+             La somma dei valori assoluti di '_satisfaction', '_anger' e 'stress' deve rispettare i seguenti limiti: 
              se l'importanza è 'Banale', la somma deve essere ≤ 2; 
              se l'importanza è 'Normale', la somma deve essere tra > 1 e ≤ 4.5; 
              se l'importanza è 'Importante', la somma deve essere tra > 4.5 e ≤ 7; 
              se l'importanza è 'Cruciale', la somma deve essere tra > 7 e ≤ 9. 
              Genera sempre una breve descrizione dell'evento. 
              Inoltre, se il 'sender' è l'allenatore e fa un commento negativo su un membro della squadra elencato nel Local Context, 
-             includi 'Commento Negativo su Compagno: nome' nella descrizione e il è nome quello del compagno. "
-             Restituisci solo il JSON come risultato."
+             includi 'Commento Negativo su Compagno: nome' nella descrizione e il è nome quello del compagno. 
+             Restituisci solo il JSON come risultato.
             """.trimIndent()
         )
         val messagesList = listOf(msg)+messages.filter { it.role == Role.user || it.role == Role.assistant }
@@ -275,53 +277,70 @@ class GPTEngine: NPCEngine {
         map["dialog"] = dm
         val m = Message(Role.user, createXml("Conversation", map, mapOf()))
         val event = sendRequest(listOf(msg, m), "gpt-4")
-        val json = Json {
-            serializersModule = SerializersModule {
-                polymorphic(EventType::class) {
-                    subclass(FootballET::class, FootballETSerializer)
-                }
-                polymorphic(EventImportance::class){
-                    subclass(FootballEI::class, FootballEISerializer)
-                }
-            }
-        }
-
-        return json.decodeFromString(event)
+        val obj = Json.parseToJsonElement(event).jsonObject
+        return LocalEvent(
+            type = convertType(obj["type"]!!.jsonPrimitive.content),
+            importance = convertImportance(obj["importance"]!!.jsonPrimitive.content),
+            statistic = SimpleMood(obj["_satisfaction"]!!.jsonPrimitive.float, obj["_stress"]!!.jsonPrimitive.float, obj["_anger"]!!.jsonPrimitive.float),
+            description = obj["description"]!!.jsonPrimitive.content,
+            generatedTime = Clock.getCurrentDateTime(),
+            personGenerated = npc!!
+        )
     }
 
-    private object FootballETSerializer : KSerializer<FootballET> {
-        override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("FootballET", PrimitiveKind.STRING)
-        override fun deserialize(decoder: Decoder): FootballET {
-            return when(decoder.decodeString()){
-                "Critica" -> FootballET.CRITICA
-                "Rabbia" -> FootballET.RABBIA
-                "Frustazione" -> FootballET.FRUSTAZIONE
-                "Perdita di fiducia o Autostima" -> FootballET.SFIDUCIA
-                "Fiducia o Incoraggiamento" -> FootballET.FIDUCIA
-                else -> FootballET.NESSUNA
-            }
-        }
-        override fun serialize(encoder: kotlinx.serialization.encoding.Encoder, value: FootballET) {
-            encoder.encodeString(value.name)
+    override fun generateRandomEvent(map: MutableMap<String, Any>, comments: Map<String, String>): LocalEvent {
+        map["eventGeneration"] = """
+             Sei un analista di conversazioni sportive. 
+             Analizza la seguente conversazione e restituisci un JSON con i seguenti campi: 
+            'evento', 'importanza', '_satisfaction', '_anger', '_stress' e 'description'. 
+             L'evento deve essere scelto tra: Fiducia o Incoraggiamento; Perdita di fiducia o Autostima; Critica, Rabbia; Frustazione; 
+             L'importanza deve essere scelta tra: Banale, Normale, Importante, Cruciale. 
+             I valori di '_satisfaction', '_anger' e '_stress' devono rispettare i seguenti vincoli numerici: 
+             ogni valore deve essere compreso tra -3.0 e 3.0. 
+             La somma dei valori assoluti di '_satisfaction', '_anger' e 'stress' deve rispettare i seguenti limiti: 
+             se l'importanza è 'Banale', la somma deve essere ≤ 2; 
+             se l'importanza è 'Normale', la somma deve essere tra > 1 e ≤ 4.5; 
+             se l'importanza è 'Importante', la somma deve essere tra > 4.5 e ≤ 7; 
+             se l'importanza è 'Cruciale', la somma deve essere tra > 7 e ≤ 9. 
+             Genera sempre una breve descrizione dell'evento. 
+             Inoltre, se il 'sender' è l'allenatore e fa un commento negativo su un membro della squadra elencato nel Local Context, 
+             includi 'Commento Negativo su Compagno: nome' nella descrizione e il è nome quello del compagno. 
+             Restituisci solo il JSON come risultato.
+        """.trimIndent()
+        map["prompt"] = "Genera un evento che coinvolga character1 e character2. L'evento dovrebbe riflettere il loro rapporto professionale e personale, descritto in thoughtsOnOthers, tenendo conto delle loro personalità e del contesto attuale della squadra. Scegli un tipo di evento da quelli elencati (Fiducia, Incoraggiamento, Critica, etc.) che meglio si adatta alla situazione descritta nel contesto attuale e passato. L'evento deve avere un impatto emotivo significativo, con una descrizione che evidenzia le immediate conseguenze e le potenziali ramificazioni future."
+        val event = sendRequest(listOf(Message(Role.user, createXml("request", map, comments))), "gpt-4")
+        val obj = Json.parseToJsonElement(event).jsonObject
+        return LocalEvent(
+            type = convertType(obj["type"]!!.jsonPrimitive.content),
+            importance = convertImportance(obj["importance"]!!.jsonPrimitive.content),
+            statistic = SimpleMood(obj["_satisfaction"]!!.jsonPrimitive.float, obj["_stress"]!!.jsonPrimitive.float, obj["_anger"]!!.jsonPrimitive.float),
+            description = obj["description"]!!.jsonPrimitive.content,
+            generatedTime = Clock.getCurrentDateTime(),
+            personGenerated = npc!!
+        )
+    }
+
+    private fun convertType(type: String): FootballET{
+        return when(type.lowercase()){
+            "rabbia" -> FootballET.RABBIA
+            "fiducia o incoraggiamento" -> FootballET.FIDUCIA
+            "perdita di fiducia o autostima" -> FootballET.SFIDUCIA
+            "critica" -> FootballET.CRITICA
+            "frustazione" -> FootballET.FRUSTAZIONE
+            else -> TODO("Not implemented yet")
         }
     }
-    private object FootballEISerializer: KSerializer<FootballEI>{
-        override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("FootballEI", PrimitiveKind.STRING)
 
-        override fun deserialize(decoder: Decoder): FootballEI {
-            return when(decoder.decodeString()){
-                "Banale" -> FootballEI.BANALE
-                "Normale" -> FootballEI.NORMALE
-                "Importante" -> FootballEI.IMPORTANTE
-                else -> FootballEI.CRUCIALE
-            }
+    private fun convertImportance(importance: String): FootballEI{
+        return when(importance.lowercase()){
+            "banale" -> FootballEI.BANALE
+            "normale" -> FootballEI.NORMALE
+            "importante" -> FootballEI.IMPORTANTE
+            "cruciale" -> FootballEI.CRUCIALE
+            else -> TODO("Not implemented yet")
         }
-
-        override fun serialize(encoder: kotlinx.serialization.encoding.Encoder, value: FootballEI) {
-            encoder.encodeString(value.name)
-        }
-
     }
+
     override fun talk(input: String): String {
         if (!started)
             throw NPCNotStartedException()

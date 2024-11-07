@@ -1,14 +1,13 @@
 package esample.calcio.conceptualMap
 
-import conceptualMap2.clock.TimerEvent
 import conceptualMap2.conceptualMap.*
 import conceptualMap2.event.Event
-import conceptualMap2.exceptions.EventGeneratedInAnotherGroupException
 import conceptualMap2.event.GlobalEvent
 import conceptualMap2.event.LocalEvent
 import conceptualMap2.npc.NPC
 
 class ConceptualMapImpl(name: String, description: String, commonThought: CommonThought, fellowship: Fellowship) : ConceptualMap(name, description, commonThought, fellowship) {
+    //Pair<Event, n# of npc who has received it>
     private val events: MutableList<Pair<Event, Int>> = mutableListOf()
     private val links = mutableSetOf<Link>()
     private val propagationList = mutableListOf<PropagateEventWhen>()
@@ -39,6 +38,10 @@ class ConceptualMapImpl(name: String, description: String, commonThought: Common
             }
         ))
         notifyObservers(event)
+    }
+
+    override fun generateRandomEvent(npc1: NPC, npc2: NPC) {
+        npc1.generateRandomEvent(npc2)
     }
 
     override fun receivedEventFromNpc(npc: NPC, event: Event) {
