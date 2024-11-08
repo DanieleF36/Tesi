@@ -1,11 +1,13 @@
 package esample.calcio.conceptualMap
 
 import conceptualMap2.conceptualMap.*
+import conceptualMap2.event.ChangeRelationshipLTE
 import conceptualMap2.event.Event
 import conceptualMap2.event.GlobalEvent
 import conceptualMap2.event.LocalEvent
 import conceptualMap2.event.PureEvent
 import conceptualMap2.npc.NPC
+import javax.swing.event.ChangeEvent
 import kotlin.random.Random
 
 class ConceptualMapImpl(
@@ -76,6 +78,13 @@ class ConceptualMapImpl(
                 }
             }
         ))
+        notifyObservers(event)
+    }
+
+    override fun receiveEvent(event: ChangeRelationshipLTE, propagation: Boolean) {
+        if(event.linkCnt != 1)
+            return
+        links.forEach { it.propagate(event) }
         notifyObservers(event)
     }
 

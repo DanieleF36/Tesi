@@ -364,7 +364,7 @@ class GPTEngine: NPCEngine {
     override fun receiveEvent(event: Event, newMood: Mood, newThoughtOnPlayer: CommonThought) {
         messages.add(Message(
             Role.system,
-            createXml("event ",event.toMap(), mapOf())
+            createXml("event",event.toMap(), mapOf())
             )
         )
     }

@@ -5,6 +5,7 @@ import conceptualMap2.npc.NPC
 import conceptualMap2.conceptualMap.CommonThought
 import conceptualMap2.conceptualMap.ConceptualMap
 import conceptualMap2.conceptualMap.Fellowship
+import conceptualMap2.event.ChangeRelationshipLTE
 import conceptualMap2.event.Event
 import conceptualMap2.event.GlobalEvent
 import conceptualMap2.event.LocalEvent
@@ -31,7 +32,7 @@ class Footballer(
     mood: Mood? = null,
     thoughtOnPlayer: CommonThought,
     /** String = npc name */
-    private val thoughtsOnOthers: Map<String, Relationship>,
+    private val thoughtsOnOthers: MutableMap<String, Relationship>,
     private val seasonalStats: List<PlayerStats>,
     private val nationalStats: PlayerStats,
     private val transfer: List<Transfer>,
@@ -157,6 +158,7 @@ class Footballer(
                     is LocalEvent -> localEvent(evt)
                     is GlobalEvent -> globalEvent(evt)
                     is PureEvent -> pureEvent(evt)
+                    is ChangeRelationshipLTE -> changeRelationship(evt)
                     else -> TODO("Not supported yet")
                 }
                 thoughtOnPlayer!!.update(event.statistic)
@@ -304,19 +306,14 @@ class Footballer(
     private fun pureEvent(evt: PureEvent): Mood{
         if(evt.personGenerated!!.first == this || evt.personGenerated!!.second == this)
             return mood!!
-        //Se è dello stesso gruppo lo si trasforma in un localEvent
-        if (evt.personGenerated!!.first.group == group || evt.personGenerated!!.second.group == group)
-            return localEvent(LocalEvent(
-                type = evt.type,
-                importance = evt.importance,
-                description = evt.description,
-                statistic = evt.statistic,
-                generatedTime = evt.generatedTime,
-                personGenerated = if(evt.personGenerated!!.first.group==group) evt.personGenerated!!.first else evt.personGenerated!!.second
-            ))
-        else{
-            return _mood!!.update(evt.statistic)
-        }
+        //TODO mettere una modifica delle statistiche
+        return _mood!!.update(evt.statistic)
+
+    }
+
+    private fun changeRelationship(evt: ChangeRelationshipLTE): Mood{
+        //Non è da implementare
+        return _mood!!
     }
 
     private fun computeCarrierStat(): PlayerStats {

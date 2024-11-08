@@ -1,10 +1,12 @@
 package conceptualMap2.conceptualMap
 
+import conceptualMap2.event.ChangeRelationshipLTE
 import conceptualMap2.event.Event
 import conceptualMap2.event.GlobalEvent
 import conceptualMap2.event.LocalEvent
 import conceptualMap2.event.PureEvent
 import conceptualMap2.npc.NPC
+import javax.swing.event.ChangeEvent
 import kotlin.random.Random
 
 /**
@@ -40,6 +42,8 @@ abstract class ConceptualMap (
     abstract fun generateEvent(event: LocalEvent, propagation: Boolean = true)
 
     abstract fun generateEvent(event: PureEvent, propagation: Boolean = true)
+
+    abstract fun receiveEvent(event: ChangeRelationshipLTE, propagation: Boolean = true)
     /**
      * this function will generate a random event between 2 random NPCs based on their relationship and personality
      */

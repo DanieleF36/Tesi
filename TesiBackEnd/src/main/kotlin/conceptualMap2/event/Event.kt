@@ -20,7 +20,8 @@ abstract class Event(
     val statistic: Mood,
     val description: String,
     @Serializable(with = LocalDateTimeSerializer::class)
-    val generatedTime: LocalDateTime
+    val generatedTime: LocalDateTime,
+    var linkCnt: Int = 0
 ): Cloneable {
     override fun toString(): String {
         return "description=$description, type=$type, importance=$importance, generatedTime=${generatedTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))}"

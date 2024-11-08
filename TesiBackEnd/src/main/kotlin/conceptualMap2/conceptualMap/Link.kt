@@ -5,9 +5,14 @@ import java.time.Duration
 
 abstract class Link(
     val a: ConceptualMap,
-    val influenceType: InfluenceType,
-    val communicationLvl: CommunicationLevel
+    protected var _type: LinkType,
+    protected var _communicationLvl: CommunicationLevel
 ){
+    val communicationLvl: CommunicationLevel
+        get() = _communicationLvl
+    val linkType: LinkType
+        get() = _type
+
     abstract fun propagate(event: Event)
 
     protected abstract fun computeTime(event: Event): Duration
