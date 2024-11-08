@@ -294,7 +294,7 @@ class GPTEngine: NPCEngine {
         )
     }
 
-    override fun generateRandomEvent(map: MutableMap<String, Any>, comments: Map<String, String>): LocalEvent {
+    override fun generateRandomEvent(map: MutableMap<String, Any>, comments: Map<String, String>): PureEvent {
         map["eventGeneration"] = """
              Sei un analista di conversazioni sportive. 
              Analizza la seguente conversazione e restituisci un JSON con i seguenti campi: 
@@ -308,7 +308,7 @@ class GPTEngine: NPCEngine {
              se l'importanza è 'Normale', la somma deve essere tra > 1 e ≤ 4.5; 
              se l'importanza è 'Importante', la somma deve essere tra > 4.5 e ≤ 7; 
              se l'importanza è 'Cruciale', la somma deve essere tra > 7 e ≤ 9. 
-             Genera sempre una breve descrizione dell'evento. 
+             Genera sempre una breve descrizione neutrale, cioè che non sia a favore di nessuno, dell'evento. 
              Inoltre, se il 'sender' è l'allenatore e fa un commento negativo su un membro della squadra elencato nel Local Context, 
              includi 'Commento Negativo su Compagno: nome' nella descrizione e il è nome quello del compagno. 
              Restituisci solo il JSON come risultato.
@@ -316,13 +316,14 @@ class GPTEngine: NPCEngine {
         map["prompt"] = "Genera un evento che coinvolga character1 e character2. L'evento dovrebbe riflettere il loro rapporto professionale e personale, descritto in thoughtsOnOthers, tenendo conto delle loro personalità e del contesto attuale della squadra. Scegli un tipo di evento da quelli elencati (Fiducia, Incoraggiamento, Critica, etc.) che meglio si adatta alla situazione descritta nel contesto attuale e passato. L'evento deve avere un impatto emotivo significativo, con una descrizione che evidenzia le immediate conseguenze e le potenziali ramificazioni future."
         val event = sendRequest(listOf(Message(Role.user, createXml("request", map, comments))), "gpt-4")
         val obj = Json.parseToJsonElement(event).jsonObject
-        return LocalEvent(
+        return PureEvent(
             type = convertType(obj["type"]!!.jsonPrimitive.content),
             importance = convertImportance(obj["importance"]!!.jsonPrimitive.content),
             statistic = SimpleMood(obj["_satisfaction"]!!.jsonPrimitive.float, obj["_stress"]!!.jsonPrimitive.float, obj["_anger"]!!.jsonPrimitive.float),
             description = obj["description"]!!.jsonPrimitive.content,
             generatedTime = Clock.getCurrentDateTime(),
-            personGenerated = npc!!
+            personGenerated = null,
+            generationPlace = npc!!.group
         )
     }
 

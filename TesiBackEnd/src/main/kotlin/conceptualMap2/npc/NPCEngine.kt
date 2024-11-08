@@ -3,6 +3,7 @@ package conceptualMap2.npc
 import conceptualMap2.conceptualMap.CommonThought
 import conceptualMap2.event.Event
 import conceptualMap2.event.LocalEvent
+import conceptualMap2.event.PureEvent
 import conceptualMap2.exceptions.NPCNotStartedException
 
 /**
@@ -28,11 +29,11 @@ interface NPCEngine {
      */
     fun talk(input: String):String
     /**
-     * @return an event that was generated with this conversation or null if the whole conversation is meaningless
+     * @return an event that was generated with this conversation
      */
     fun generateEvent(): LocalEvent
 
-    fun generateRandomEvent(map: MutableMap<String, Any>, comments: Map<String, String>,): LocalEvent
+    fun generateRandomEvent(map: MutableMap<String, Any>, comments: Map<String, String>,): PureEvent
     /**
      * This function will let know the NPC about this event
      */

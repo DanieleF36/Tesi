@@ -2,17 +2,17 @@ package esample.calcio.conceptualMap
 
 import conceptualMap2.conceptualMap.*
 import conceptualMap2.event.Event
-import conceptualMap2.exceptions.EventGeneratedInAnotherGroupException
 import conceptualMap2.event.GlobalEvent
 import conceptualMap2.event.LocalEvent
 import conceptualMap2.event.PureEvent
 import conceptualMap2.npc.NPC
+import kotlin.random.Random
 
 class ConceptualMapImpl(
     name: String,
     description: String,
     commonThought: CommonThought,
-    commonThoughtOnGroups: Collection<Pair<String, CommonThought>>,
+    commonThoughtOnGroups: MutableCollection<Pair<String, CommonThought>>,
     fellowship: Fellowship
 ) : ConceptualMap(name, description, commonThought, commonThoughtOnGroups, fellowship) {
     //Pair<Event, n# of npc who has received it>
@@ -24,7 +24,7 @@ class ConceptualMapImpl(
     }
 
     override fun addLink(link: Link): Boolean {
-        return links.add(link)
+        return links.add(link) && commonThoughtOnGroups.add(Pair(link.a.name, CommonThoughtImpl(0f,0f,0f)))
     }
 
     override fun removeLink(group: ConceptualMap): Boolean {
@@ -55,8 +55,20 @@ class ConceptualMapImpl(
             event = event,
             condition = { events.find { it.first == event }!!.second >= npcs.size/2f},
             propagate = {
-                commonThoughtOnPlayer.update(event.statistic)
-                commonThoughtOnGroups.find { it.first.lowercase() == "staff tecnico" }!!.second.update(event.statistic)
+                //Se il giocatore è uno delle persone
+                if(event.personGenerated!!.first.name=="player" || event.personGenerated!!.second.name=="player") {
+                    commonThoughtOnPlayer.update(event.statistic)
+                    commonThoughtOnGroups.find { it.first.lowercase() == "staff tecnico" }!!.second.update(event.statistic)
+                    commonThoughtOnGroups.find { it.first.lowercase() == if(event.personGenerated!!.first.name=="player")
+                            event.personGenerated!!.second.group.name.lowercase()
+                        else
+                            event.personGenerated!!.first.group.name.lowercase()
+                    }!!.second.update(event.statistic)
+                }
+                else {
+                    commonThoughtOnGroups.find { it.first.lowercase() == event.personGenerated!!.first.group.name.lowercase()}!!.second.update(event.statistic)
+                    commonThoughtOnGroups.find { it.first.lowercase() == event.personGenerated!!.second.group.name.lowercase()}!!.second.update(event.statistic)
+                }
                 if(propagation) {
                     for (link in links) {
                         link.propagate(event)
@@ -65,6 +77,17 @@ class ConceptualMapImpl(
             }
         ))
         notifyObservers(event)
+    }
+
+    override fun generateRandomEvent() {
+        val index1 = Random.nextInt(npcs.size)
+        val groupIndex = Random.nextInt(links.size+1)
+        var group: ConceptualMap = this
+        if(groupIndex!=links.size){
+            group = links.toList()[groupIndex].a
+        }
+        val index2 = Random.nextInt(group.npcs.size)
+        generateRandomEvent(npcs[index1], group.npcs[index2])
     }
 
     override fun generateRandomEvent(npc1: NPC, npc2: NPC) {

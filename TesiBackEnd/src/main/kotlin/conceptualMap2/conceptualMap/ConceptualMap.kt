@@ -16,10 +16,10 @@ abstract class ConceptualMap (
     val name: String,
     val description: String,
     val commonThoughtOnPlayer: CommonThought,
-    val commonThoughtOnGroups: Collection<Pair<String, CommonThought>>,
+    val commonThoughtOnGroups: MutableCollection<Pair<String, CommonThought>>,
     val fellowship: Fellowship
 ) {
-    protected val npcs = mutableListOf<NPC>()
+    internal val npcs = mutableListOf<NPC>()
     /**
      * @return the collection of all the possible event generated or propagated in this group, sorted by time. i.e. the last event in the list will be the last generated
      */
@@ -43,14 +43,7 @@ abstract class ConceptualMap (
     /**
      * this function will generate a random event between 2 random NPCs based on their relationship and personality
      */
-    open fun generateRandomEvent(){
-        val index1 = Random.nextInt(npcs.size)
-        var index2 = Random.nextInt(npcs.size)
-        while(index2 == index1){
-            index2 = Random.nextInt(npcs.size)
-        }
-        generateRandomEvent(npcs[index1], npcs[index2])
-    }
+    abstract fun generateRandomEvent()
     /**
      * this function will generate a random event between npc1 and npc2 based on their relationship and personality
      */

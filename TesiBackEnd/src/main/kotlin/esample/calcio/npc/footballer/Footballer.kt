@@ -87,8 +87,6 @@ class Footballer(
         //println("Il mood di $_name è cambiato, diventando $mood, in seguito all'evento: ${event.description}")
         if(event is LocalEvent )
             group.generateEvent(event)
-        else if(event is PureEvent)
-            group.generateEvent(event)
         tasks.forEach { it.action(event) }
     }
 
@@ -98,7 +96,11 @@ class Footballer(
         map["character1"] = toMap()
         map["character2"] = npc.toMap()
         val event = engine.generateRandomEvent(map, mapOf("comments" to "questi sono i commenti dei tag che si trovano rispettivamente in character1 e character2"))
+        event.personGenerated = Pair(this, npc)
+        _mood = _mood!!.update(event.statistic)
         group.generateEvent(event)
+        if(npc.group != group)
+            npc.group.generateEvent(event)
         tasks.forEach { it.action(event) }
     }
 
@@ -154,6 +156,7 @@ class Footballer(
                 _mood = when (evt) {
                     is LocalEvent -> localEvent(evt)
                     is GlobalEvent -> globalEvent(evt)
+                    is PureEvent -> pureEvent(evt)
                     else -> TODO("Not supported yet")
                 }
                 thoughtOnPlayer!!.update(event.statistic)
@@ -231,7 +234,7 @@ class Footballer(
 
     private fun localEvent(evt: LocalEvent): Mood{
         if(evt.personGenerated==this)
-            mood
+            return mood!!
         //each player should react in a different way from each event
         val personGenerated = evt.personGenerated
         val relationshipModifier = when (thoughtsOnOthers[personGenerated.name] ?: Relationship.NO_RELATIONSHIP) {
@@ -287,7 +290,6 @@ class Footballer(
                 _stress = 0.0f,
                 _anger = 0.0f
             )
-
             else -> TODO()
         }
 
@@ -297,6 +299,24 @@ class Footballer(
 
     private fun globalEvent(evt: GlobalEvent): Mood{
         return evt.statistic.update(mood!!)
+    }
+
+    private fun pureEvent(evt: PureEvent): Mood{
+        if(evt.personGenerated!!.first == this || evt.personGenerated!!.second == this)
+            return mood!!
+        //Se è dello stesso gruppo lo si trasforma in un localEvent
+        if (evt.personGenerated!!.first.group == group || evt.personGenerated!!.second.group == group)
+            return localEvent(LocalEvent(
+                type = evt.type,
+                importance = evt.importance,
+                description = evt.description,
+                statistic = evt.statistic,
+                generatedTime = evt.generatedTime,
+                personGenerated = if(evt.personGenerated!!.first.group==group) evt.personGenerated!!.first else evt.personGenerated!!.second
+            ))
+        else{
+            return _mood!!.update(evt.statistic)
+        }
     }
 
     private fun computeCarrierStat(): PlayerStats {
