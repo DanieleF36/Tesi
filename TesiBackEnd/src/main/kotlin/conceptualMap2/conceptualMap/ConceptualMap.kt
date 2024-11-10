@@ -18,7 +18,7 @@ abstract class ConceptualMap (
     val name: String,
     val description: String,
     val commonThoughtOnPlayer: CommonThought,
-    val commonThoughtOnGroups: MutableCollection<Pair<String, CommonThought>>,
+    val commonThoughtOnGroups: MutableMap<String, CommonThought>,
     val fellowship: Fellowship
 ) {
     internal val npcs = mutableListOf<NPC>()
@@ -29,12 +29,11 @@ abstract class ConceptualMap (
     /**
      * @return true if the link was correctly added, false if the teo groups are already linked
      */
-    abstract fun addLink(link: Link): Boolean
+    abstract fun addLink(link: Link, newCT: CommonThought): Boolean
     /**
-     * @param group
-     * @return true if the link was correctly added, false if the link is missing
+     * @return true if the link was correctly removed, false if the link is missing
      */
-    abstract fun removeLink(group: ConceptualMap): Boolean
+    abstract fun removeLink(link: Link): Boolean
     /**
      * @param event is the one that will be generated inside the group amd the only one that is allowed to modify the common thought
      * @param propagation if true the event will be propagated to the other linked groups
@@ -62,6 +61,8 @@ abstract class ConceptualMap (
     abstract fun receivedEventFromNpc(npc: NPC, event: Event)
 
     abstract fun generateNPC(): NPC
+
+    protected abstract fun navigateThroughLinks()
 
     fun attach(npc: NPC){
         npcs.add(npc)

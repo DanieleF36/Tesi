@@ -58,7 +58,7 @@ class LinkUnidirectional(
     }
 
     override fun computeTime(event: Event): Duration {
-        val t = when(linkType){
+        val t = when(this@LinkUnidirectional.value){
             LinkTypeImpl.DIRETTIVA -> .9f
             LinkTypeImpl.SUPPORTIVA -> .4f
             LinkTypeImpl.COLLABORATIVA -> .7f
