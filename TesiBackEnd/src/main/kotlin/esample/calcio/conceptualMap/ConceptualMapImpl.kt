@@ -14,7 +14,7 @@ class ConceptualMapImpl(
     name: String,
     description: String,
     commonThought: CommonThought,
-    commonThoughtOnGroups: MutableCollection<Pair<String, CommonThought>>,
+    commonThoughtOnGroups: MutableMap<String, CommonThought>,
     fellowship: Fellowship
 ) : ConceptualMap(name, description, commonThought, commonThoughtOnGroups, fellowship) {
     //Pair<Event, n# of npc who has received it>
@@ -26,7 +26,8 @@ class ConceptualMapImpl(
     }
 
     override fun addLink(link: Link): Boolean {
-        return links.add(link) && commonThoughtOnGroups.add(Pair(link.a.name, CommonThoughtImpl(0f,0f,0f)))
+        commonThoughtOnGroups[link.a.name] = CommonThoughtImpl(0f,0f,0f)
+        return links.add(link)
     }
 
     override fun removeLink(group: ConceptualMap): Boolean {
@@ -60,16 +61,16 @@ class ConceptualMapImpl(
                 //Se il giocatore è uno delle persone
                 if(event.personGenerated!!.first.name=="player" || event.personGenerated!!.second.name=="player") {
                     commonThoughtOnPlayer.update(event.statistic)
-                    commonThoughtOnGroups.find { it.first.lowercase() == "staff tecnico" }!!.second.update(event.statistic)
-                    commonThoughtOnGroups.find { it.first.lowercase() == if(event.personGenerated!!.first.name=="player")
+                    commonThoughtOnGroups["staff tecnico"]!!.update(event.statistic)
+                    commonThoughtOnGroups[if(event.personGenerated!!.first.name=="player")
                             event.personGenerated!!.second.group.name.lowercase()
                         else
                             event.personGenerated!!.first.group.name.lowercase()
-                    }!!.second.update(event.statistic)
+                    ]!!.update(event.statistic)
                 }
                 else {
-                    commonThoughtOnGroups.find { it.first.lowercase() == event.personGenerated!!.first.group.name.lowercase()}!!.second.update(event.statistic)
-                    commonThoughtOnGroups.find { it.first.lowercase() == event.personGenerated!!.second.group.name.lowercase()}!!.second.update(event.statistic)
+                    commonThoughtOnGroups[event.personGenerated!!.first.group.name.lowercase()]!!.update(event.statistic)
+                    commonThoughtOnGroups[event.personGenerated!!.second.group.name.lowercase()]!!.update(event.statistic)
                 }
                 if(propagation) {
                     for (link in links) {

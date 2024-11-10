@@ -9,6 +9,7 @@ import conceptualMap2.event.Event
 import conceptualMap2.event.EventImportance
 import conceptualMap2.event.EventType
 import conceptualMap2.event.LocalEvent
+import conceptualMap2.event.PureEvent
 import esample.calcio.event.impl.FootballEI
 import java.time.Duration
 import java.time.temporal.ChronoUnit
@@ -30,8 +31,8 @@ class LinkUnidirectional(
     a: ConceptualMap,
     influenceType: LinkTypeImpl,
     communicationLvl: CommunicationLevelImpl,
-    val weight: (context: WeightContext, event: Event) -> LocalEvent,
-    val filter: (event: Event) -> Boolean
+    val weight: (context: WeightContext, event: PureEvent) -> PureEvent,
+    val filter: (event: PureEvent) -> Boolean
 ): Link(a, influenceType, communicationLvl), WeightContext {
     private val l = mutableListOf<TimerEvent>()
     private val counters = mutableMapOf<EventType, MutableMap<EventImportance, Int>>()
@@ -39,6 +40,7 @@ class LinkUnidirectional(
     override fun propagate(event: Event) {
         if(++(event.linkCnt) > 3 || (event is ChangeRelationshipLTE && event.linkCnt > 1))
             return
+        event as PureEvent
         if(!filter(event)) {
             if(counters[event.type] != null)
                 if(counters[event.type]!![event.importance] != null)
@@ -102,6 +104,6 @@ class LinkUnidirectional(
     }
 
     override fun changeRelationshipType(evt: ChangeRelationshipLTE) {
-        a.generateEvent(evt)
+        //a.generateEvent(evt)
     }
 }

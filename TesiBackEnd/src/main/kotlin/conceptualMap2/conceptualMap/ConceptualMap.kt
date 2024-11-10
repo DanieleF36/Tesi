@@ -18,7 +18,7 @@ abstract class ConceptualMap (
     val name: String,
     val description: String,
     val commonThoughtOnPlayer: CommonThought,
-    val commonThoughtOnGroups: MutableCollection<Pair<String, CommonThought>>,
+    val commonThoughtOnGroups: MutableMap<String, CommonThought>,
     val fellowship: Fellowship
 ) {
     internal val npcs = mutableListOf<NPC>()
