@@ -19,15 +19,14 @@ abstract class Event(
     val importance: EventImportance,
     val statistic: Mood,
     val description: String,
-    @Serializable(with = LocalDateTimeSerializer::class)
-    val generatedTime: LocalDateTime,
+    generatedTime: LocalDateTime,
     var linkCnt: Int = 0
-): Cloneable {
+): AbstractEvent(generatedTime), Cloneable {
     override fun toString(): String {
         return "description=$description, type=$type, importance=$importance, generatedTime=${generatedTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))}"
     }
 
-    open fun toMap(): Map<String, Any> {
+    override fun toMap(): Map<String, Any> {
         val map = mutableMapOf<String, Any>()
         map["type"] = type
         map["importance"] = importance

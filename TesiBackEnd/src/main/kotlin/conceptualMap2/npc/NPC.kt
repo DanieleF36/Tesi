@@ -2,7 +2,10 @@ package conceptualMap2.npc
 
 import conceptualMap2.conceptualMap.CommonThought
 import conceptualMap2.conceptualMap.ConceptualMap
+import conceptualMap2.event.AbstractEvent
 import conceptualMap2.event.Event
+import conceptualMap2.event.EventImportance
+import conceptualMap2.event.EventType
 import conceptualMap2.moduleDagger2.*
 import conceptualMap2.npc.task.Task
 import conceptualMap2.npc.knowledge.Knowledge
@@ -89,7 +92,7 @@ abstract class NPC (
     /**
      * this function will generate a random event between this and npc
      */
-    abstract fun generateRandomEvent(npc: NPC)
+    abstract fun generateRandomEvent(npc: NPC, type: EventType, importance: EventImportance)
 
     abstract fun toMap(): Map<String, Any>
 
@@ -114,5 +117,5 @@ abstract class NPC (
         group.detach(this)
     }
 
-    abstract fun addEvent(event: Event)
+    abstract fun addEvent(event: AbstractEvent)
 }

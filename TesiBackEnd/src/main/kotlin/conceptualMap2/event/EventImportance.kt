@@ -11,4 +11,5 @@ abstract class EventImportance(val name: String){
     override fun toString(): String {
         return name
     }
+    abstract fun toMap(): Map<String, Any>
 }
