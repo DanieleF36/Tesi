@@ -68,4 +68,22 @@ class Relationship(value: Int): LinkType(value) {
             else -> TODO()
         }
     }
+
+    override fun toMap(): Map<String, Any> {
+        return when(this){
+            ALLEATO_pos -> mapOf("ALLEATO_pos" to "Questi gruppi sono legati da una alleanza forte")
+            ALLEATO_neg -> mapOf("ALLEATO_neg" to "Questi gruppi sono legati da una alleanza debole")
+            AMICIZIA_pos -> mapOf("AMICIZIA_pos" to "Questi gruppi hanno un forte senso di amicizia ma non sono alleati")
+            AMICIZIA_neg -> mapOf("AMICIZIA_neg" to "Questi gruppi hanno un legame di amicizia, anche se non troppo forte, ma non sono alleati")
+            NEUTRALE_pos -> mapOf("NEUTRALE_pos" to "Questi gruppi non hanno una relazione ma si vedono di buon grado")
+            NEUTRALE_neg -> mapOf("NEUTRALE_neg" to "Questi gruppi non hanno una relazione ma NON si vedono di buon grado")
+            RIVALE_pos -> mapOf("RIVALE_pos" to "Questi gruppi non vanno certamente d'accordo e hanno un forte senso di rivalità")
+            RIVALE_neg -> mapOf("RIVALE_neg" to "Questi gruppi non vanno propio d'accordo e iniziano a \"farsi dispetti\" a vicenda")
+            NEMICO_pos -> mapOf("NEMICO_pos" to "Questi gruppi sono nemici")
+            NEMICO_neg -> mapOf("NEMICO_neg" to "Questi gruppi sono nemici e sull'orlo di una guerra")
+            CONFLITTO_pos -> mapOf("CONFLITTO_pos" to "Questi gruppi sono in guerra e questa o è iniziata da poco o sta per finire")
+            CONFLITTO_neg -> mapOf("CONFLITTO_neg" to "Questi gruppi sono in guerra e questa e si è nel cuore di quest'ultima")
+            else -> TODO()
+        }
+    }
 }
