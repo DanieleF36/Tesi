@@ -22,6 +22,12 @@ open class Knowledge(
         map["localContext"] = localContext.toMap()
         map["actualContext"] = actualContext.toMap()
         map["metaContext"] = metaContext.toMap()
+        map["comments"] = mapOf(
+            "globalContext" to "descrive il contesto sul mondo attuale che il personaggio deve sapere",
+            "localContext" to "descrive il contesto sul mondo che il personaggio vive ogni giorno",
+            "actualContext" to "descrive la situazione attuale sul mondo",
+            "metaContext" to "informazioni sul gioco e sul player che il personaggio deve rispettare"
+        )
         return map
     }
 }

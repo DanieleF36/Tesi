@@ -9,19 +9,16 @@ class LocalContext(
     val cityOrganization: CityOrganization,
     val politicalAuthorities: PoliticalAuthorities,
     val prominentPeople: List<ProminentPerson>,
-    val peoplesHappiness: String,
 ): Context() {
     override fun toMap(): Map<String, Any?> {
         val map = mutableMapOf<String, Any?>()
         map["cityOrganization"] = cityOrganization.toMap()
         map["politicalAuthorities"] = politicalAuthorities.toMap()
         map["prominentPeople"] = prominentPeople.map { it.toMap() }
-        map["peoplesHappiness"] = peoplesHappiness
         map["comments"] = mapOf(
             "cityOrganization" to "descrive com'è organizzata la città in cui vive il personaggio",
             "politicalAuthorities" to "descrive le autorità politiche della città in cui vive il personaggio",
             "prominentPeople" to "descrive le persone di spicco presenti nella città in cui vive il personaggio",
-            "peoplesHappiness" to "descrive la felicità del popolo e le loro preoccupazioni"
         )
         return map
     }
