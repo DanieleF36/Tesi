@@ -8,6 +8,7 @@ import conceptualMap2.event.*
 import esample.medievale.event.pureEvent.MedievalEventImportance
 import java.time.Duration
 import java.time.temporal.ChronoUnit
+import kotlin.math.abs
 
 class BidirectionalLink(
     _type: LinkType,
@@ -67,7 +68,7 @@ class BidirectionalLink(
     }
 
     private fun convertContributionLinkType(type: LinkType): Float{
-        TODO()
+        return abs(type.value)/10f
     }
 
     private fun updateCounter(event: Event) {
