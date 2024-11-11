@@ -14,7 +14,7 @@ class SimpleMood(
 
     override fun update(stats: Mood): Mood {
         return SimpleMood(
-            _satisfaction + stats.satisfaction,
+            _satisfaction + stats.happiness,
             _stress + stats.stress,
             _anger + stats.anger
         )

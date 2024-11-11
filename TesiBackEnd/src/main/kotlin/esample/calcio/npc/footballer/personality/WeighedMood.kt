@@ -11,7 +11,7 @@ class WeighedMood(
     private val observers = mutableSetOf<Observer>()
     override fun update(stats: Mood): Mood {
         return WeighedMood(
-            stats.satisfaction*_satisfaction,
+            stats.happiness*_satisfaction,
             stats.stress*_stress,
             stats.anger*_anger
         )

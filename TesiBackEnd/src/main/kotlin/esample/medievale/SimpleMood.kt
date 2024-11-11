@@ -9,7 +9,7 @@ class SimpleMood(
 ): Mood(satisfaction, stress, anger) {
     override fun update(stats: Mood): Mood {
         return SimpleMood(
-            satisfaction + stats.satisfaction,
+            happiness + stats.happiness,
             stress + stats.stress,
             anger + stats.anger,
         )
