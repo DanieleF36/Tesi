@@ -63,22 +63,36 @@ class ConceptualMapImpl(
         if(events.containsKey(event))
             return
         events[event] = 0
-        eventToPropagate.add(PropagateEventWhen(
-                event = event,
-                condition = { events[event]!! >= npcs.size/2f },
-                propagate = {
-                    if(event.personGenerated!!.first.name == "player" || event.personGenerated!!.second.name == "player")
-                        commonThoughtOnPlayer.update(event.statistic)
-                    val m1 = updateStat(event.personGenerated!!.first.group.name).update(event.statistic)
-                    val m2 = updateStat(event.personGenerated!!.second.group.name).update(event.statistic)
-                    commonThoughtOnGroups[event.personGenerated!!.first.group.name]!!.update(m1)
-                    commonThoughtOnGroups[event.personGenerated!!.second.group.name]!!.update(m2)
-                    if(propagation)
-                        links.forEach { it.propagate(event, this) }
-                }
-            )
+        val obj = PropagateEventWhen(
+            event = event,
+            condition = { events[event]!! >= npcs.size/2f },
+            propagate = {
+                if(event.personGenerated!!.first.name == "player" || event.personGenerated!!.second.name == "player")
+                    commonThoughtOnPlayer.update(event.statistic)
+                val m1 = updateStat(event.personGenerated!!.first.group.name).update(event.statistic)
+                val m2 = updateStat(event.personGenerated!!.second.group.name).update(event.statistic)
+                commonThoughtOnGroups[event.personGenerated!!.first.group.name]!!.update(m1)
+                commonThoughtOnGroups[event.personGenerated!!.second.group.name]!!.update(m2)
+                if(propagation)
+                    links.forEach {
+                        if(Random.nextDouble()<=event.type.convertIntoValue()*it.distance.contribution*.1f*convertContributionEventImportance(event.importance as MedievalEventImportance))
+                            it.propagate(event, this)
+                    }
+                eventToPropagate.remove(it)
+            }
         )
+        eventToPropagate.add(obj)
         notifyNPCs(event)
+    }
+
+    private fun convertContributionEventImportance(imp: MedievalEventImportance): Float {
+        return when (imp) {
+            MedievalEventImportance.BANALE -> .05f
+            MedievalEventImportance.NORMALE -> .1f
+            MedievalEventImportance.IMPORTANTE -> .8f
+            MedievalEventImportance.CRUCIALE -> 1.2f
+            else -> TODO("Not implemented yet")
+        }
     }
 
     private fun updateStat(groupName: String): Mood{

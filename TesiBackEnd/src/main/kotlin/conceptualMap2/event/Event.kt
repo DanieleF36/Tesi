@@ -13,13 +13,13 @@ import java.time.format.DateTimeFormatter
  * @param statistic define the statistic that describe the event
  * @param description of what happened in the event
  */
-@Serializable
 abstract class Event(
     val type: EventType,
     val importance: EventImportance,
     val statistic: Mood,
     val description: String,
     generatedTime: LocalDateTime,
+    val confidentiality: ConfidentialityLevel,
     var linkCnt: Int = 0
 ): AbstractEvent(generatedTime), Cloneable {
     override fun toString(): String {
@@ -44,6 +44,8 @@ abstract class Event(
             c["$key change="] = value
         }
         map["impact"] = mapOf<String, Any>("mood" to s, "CommonThought" to c)
+        map["generatedTime"] = generatedTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+        map["confidentiality"] = confidentiality.toMap()
         return map
     }
 }

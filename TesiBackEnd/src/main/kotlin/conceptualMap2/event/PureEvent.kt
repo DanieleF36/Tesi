@@ -12,10 +12,11 @@ class PureEvent(
     statistic: Mood,
     description: String,
     generatedTime: LocalDateTime,
+    confidentiality: ConfidentialityLevel,
     var personGenerated: Pair<NPC, NPC>?,
     //It can be: personGenerated's group or null if it was generated in a neutral place
     val generationPlace: ConceptualMap?
-): Event(type, importance, statistic, description, generatedTime) {
+): Event(type, importance, statistic, description, generatedTime, confidentiality) {
     override fun toString(): String {
         return "Pure: description=$description, type=$type, importance=$importance, generatedTime=${generatedTime.format(
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))}, personGenerated1=${personGenerated!!.first.name}, personGenerated2=${personGenerated!!.second.name}, generatedPlace=${generationPlace?.name}"
@@ -43,6 +44,6 @@ class PureEvent(
     }
 
     override fun clone(): Any {
-        return PureEvent(type, importance, statistic, description, generatedTime, personGenerated, generationPlace)
+        return PureEvent(type, importance, statistic, description, generatedTime, confidentiality, personGenerated, generationPlace)
     }
 }

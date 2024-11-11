@@ -4,11 +4,7 @@ import conceptualMap2.clock.TimerEvent
 import conceptualMap2.conceptualMap.ConceptualMap
 import conceptualMap2.conceptualMap.Link
 import conceptualMap2.conceptualMap.LinkType
-import conceptualMap2.event.ChangeRelationshipLTE
-import conceptualMap2.event.Event
-import conceptualMap2.event.EventImportance
-import conceptualMap2.event.EventType
-import conceptualMap2.event.LocalEvent
+import conceptualMap2.event.*
 import esample.medievale.event.pureEvent.MedievalEventImportance
 import java.time.Duration
 import java.time.temporal.ChronoUnit
@@ -18,30 +14,44 @@ class BidirectionalLink(
     val a: ConceptualMap,
     val b: ConceptualMap,
     val distance: Distance,
-    val weight: (context: WeightContext, event: Event) -> LocalEvent,
-    val filter: (event: Event) -> Boolean
+    val weight: (context: WeightContext, event: AbstractEvent) -> LocalEvent,
+    val filter: (event: AbstractEvent) -> Boolean
 ): Link(_type), WeightContext {
     private val historicalContextContribution = 10f
     private val l = mutableListOf<TimerEvent>()
     private val counters = mutableMapOf<EventType, MutableMap<EventImportance, Int>>()
 
-    override fun propagate(event: Event, sender: ConceptualMap) {
+    override fun propagate(event: AbstractEvent, sender: ConceptualMap) {
         val receiver = if(a == sender) b else a
-        updateCounter(event)
-
-        val e = weight(this, event)
-        if(!filter(event))
+        if(event is Event) {
+            updateCounter(event)
+            val e = weight(this, event)
+            if (!filter(event))
+                l.add(
+                    TimerEvent(
+                        e,
+                        computeTime(e),
+                    ) { receiver.receiveEvent(e) }
+                )
+        }
+        else{
             l.add(
                 TimerEvent(
-                    e,
-                    computeTime(e),
-                ) { receiver.receiveEvent(e) }
+                    event,
+                    computeTime(event),
+                ) { receiver.receiveEvent(event) }
             )
+        }
     }
 
-    override fun computeTime(event: Event): Duration {
+    override fun computeTime(event: AbstractEvent): Duration {
+        if(event is Event)
+            return Duration.of(
+                (distance.contribution*historicalContextContribution*convertContributionEventImportance(event.importance as MedievalEventImportance)*convertContributionLinkType(_type)).toLong(),
+                ChronoUnit.MONTHS
+            )
         return Duration.of(
-            (distance.contribution*historicalContextContribution*convertContributionEventImportance(event.importance as MedievalEventImportance)*convertContributionLinkType(_type)).toLong(),
+            (distance.contribution*historicalContextContribution*convertContributionEventImportance(MedievalEventImportance.IMPORTANTE)*convertContributionLinkType(_type)).toLong(),
             ChronoUnit.MONTHS
         )
     }

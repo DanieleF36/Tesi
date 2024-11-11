@@ -5,11 +5,11 @@ import conceptualMap2.event.Event
 class PropagateEventWhen(
     val event: Event,
     val condition: ()-> Boolean,
-    val propagate: ()->Unit
+    val propagate: (PropagateEventWhen)->Unit
 ) {
     fun check() {
         if (condition())
-            propagate()
+            propagate(this)
     }
 
     override fun hashCode(): Int {

@@ -11,5 +11,6 @@ abstract class EventType(val name: String){
     override fun toString(): String {
         return name
     }
+    abstract fun convertIntoValue(): Float
 }
 
