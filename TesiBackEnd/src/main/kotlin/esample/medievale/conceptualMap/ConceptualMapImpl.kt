@@ -8,7 +8,6 @@ import conceptualMap2.event.Event
 import conceptualMap2.event.EventImportance
 import conceptualMap2.event.EventType
 import conceptualMap2.event.GlobalEvent
-import conceptualMap2.event.LocalEvent
 import conceptualMap2.event.PureEvent
 import conceptualMap2.npc.Mood
 import conceptualMap2.npc.NPC
@@ -56,10 +55,6 @@ class ConceptualMapImpl(
 
     override fun removeLink(link: Link): Boolean {
         return links.remove(link)
-    }
-
-    override fun generateEvent(event: LocalEvent, propagation: Boolean) {
-        TODO("Da eliminare")
     }
 
     override fun generateEvent(event: PureEvent, propagation: Boolean) {

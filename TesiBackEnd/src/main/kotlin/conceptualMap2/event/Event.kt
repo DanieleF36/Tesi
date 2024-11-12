@@ -1,9 +1,7 @@
 package conceptualMap2.event
 
-import conceptualMap2.conceptualMap.CommonThought
 import conceptualMap2.npc.Mood
-import esample.calcio.conceptualMap.CommonThoughtImpl
-import kotlinx.serialization.Serializable
+import esample.medievale.conceptualMap.CommonThoughtImpl
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -36,7 +34,7 @@ abstract class Event(
             map.remove(key)
             map["$key change="] = value
         }
-        val ct = CommonThoughtImpl(0f,0f,0f)
+        val ct = CommonThoughtImpl(0f,0f,0f, 0f, 0f,)
         ct.update(statistic)
         val c = ct.toMap().toMutableMap()
         for((key, value) in c) {

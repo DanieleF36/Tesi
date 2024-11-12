@@ -13,7 +13,7 @@ class GlobalMedievalET(name: String): EventType(name) {
         val RIVOLTA_POPOLARE = GlobalMedievalET("RIVOLTA_POPOLARE")
     }
 
-    fun toMap(): Map<String, Any> {
+    override fun toMap(): Map<String, Any> {
         val map = mutableMapOf<String, Any>()
         when(name) {
             "INIZIO_CONFLITTO" -> map["INIZIO_CONFLITTO"] = mutableMapOf(
@@ -46,6 +46,19 @@ class GlobalMedievalET(name: String): EventType(name) {
             )
         }
         return map
+    }
+
+    override fun isPositive(): Int {
+        return when(name){
+            "INIZIO_CONFLITTO" -> -1
+            "FINE_CONFLITTO_VITTORIA" -> 1
+            "FINE_CONFLITTO_SCONFITTA" -> -1
+            "INIZIO_ALLEANZA" -> 1
+            "FINE_ALLEANZA" -> -1
+            "OMICIDIO_IMPORTANTE" -> -1
+            "RIVOLTA_POPOLARE" -> -1
+            else -> TODO()
+        }
     }
 
 }

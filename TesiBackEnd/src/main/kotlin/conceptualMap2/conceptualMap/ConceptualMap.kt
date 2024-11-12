@@ -6,7 +6,6 @@ import conceptualMap2.event.Event
 import conceptualMap2.event.EventImportance
 import conceptualMap2.event.EventType
 import conceptualMap2.event.GlobalEvent
-import conceptualMap2.event.LocalEvent
 import conceptualMap2.event.PureEvent
 import conceptualMap2.npc.NPC
 import javax.swing.event.ChangeEvent
@@ -38,11 +37,6 @@ abstract class ConceptualMap (
      * @return true if the link was correctly removed, false if the link is missing
      */
     abstract fun removeLink(link: Link): Boolean
-    /**
-     * @param event is the one that will be generated inside the group amd the only one that is allowed to modify the common thought
-     * @param propagation if true the event will be propagated to the other linked groups
-     */
-    abstract fun generateEvent(event: LocalEvent, propagation: Boolean = true)
 
     fun receiveEvent(event: AbstractEvent, propagation: Boolean = true){
         when(event){

@@ -2,8 +2,6 @@ package conceptualMap2.npc
 
 import conceptualMap2.conceptualMap.CommonThought
 import conceptualMap2.event.AbstractEvent
-import conceptualMap2.event.Event
-import conceptualMap2.event.LocalEvent
 import conceptualMap2.event.PureEvent
 import conceptualMap2.exceptions.NPCNotStartedException
 

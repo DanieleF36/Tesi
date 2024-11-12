@@ -5,7 +5,7 @@ import conceptualMap2.event.EventImportance
 import conceptualMap2.event.EventType
 import conceptualMap2.npc.NPC
 import conceptualMap2.npc.knowledge.Knowledge
-import esample.calcio.npc.footballer.context.SimpleContext
+import esample.medievale.npc.knowledge.SimpleContext
 import esample.medievale.realEsample.map.cities.faelwenConceptualMap
 
 val player: NPC = object : NPC(
