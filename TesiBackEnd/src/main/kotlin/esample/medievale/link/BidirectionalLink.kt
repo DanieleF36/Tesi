@@ -10,6 +10,14 @@ import java.time.Duration
 import java.time.temporal.ChronoUnit
 import kotlin.math.abs
 
+/**
+ * This class describes a link that can be traversed in either direction
+ * @param type is the Link typology
+ * @param a is one side of the link
+ * @param b is the other side of the link
+ * @param weight is a function that will allow the user to define how to modify the event statistics
+ * @param filter is a function that will allow the user to define what Event cam go through the link
+ */
 class BidirectionalLink(
     _type: LinkType,
     val a: ConceptualMap,
