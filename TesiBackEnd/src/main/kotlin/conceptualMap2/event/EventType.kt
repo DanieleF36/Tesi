@@ -11,6 +11,10 @@ abstract class EventType(val name: String){
     override fun toString(): String {
         return name
     }
-    abstract fun convertIntoValue(): Float
+    abstract fun toMap(): Map<String, Any>
+    /**
+     * @return -1 negative, 0 neutral and 1 positive
+     */
+    abstract fun isPositive(): Int
 }
 
