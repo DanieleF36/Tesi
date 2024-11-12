@@ -13,11 +13,13 @@ import conceptualMap2.event.PureEvent
 import conceptualMap2.npc.Mood
 import conceptualMap2.npc.NPC
 import esample.medievale.WeightSimpleMood
+import esample.medievale.context
 import esample.medievale.event.NewCTAfterLTCE
 import esample.medievale.event.pureEvent.MedievalEventImportance
 import esample.medievale.event.pureEvent.MedievalEventType
 import esample.medievale.link.BidirectionalLink
 import esample.medievale.link.Relationship
+import esample.medievale.npc.Citizen
 import kotlin.math.abs
 import kotlin.random.Random
 
@@ -732,7 +734,7 @@ class ConceptualMapImpl(
     }
 
     override fun generateNPC(): NPC {
-        TODO("Not yet implemented")
+        return Citizen(group = this, context = context)
     }
 
     private fun notifyNPCs(e: AbstractEvent) {

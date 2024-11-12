@@ -11,6 +11,20 @@ class CommonThoughtImpl(
     _collaborazione: Float, //Potenziale per lavorare insieme per obiettivi comuni.
 ): CommonThought(_paura, _fiducia, _rispetto, _influenza, _collaborazione) {
     override fun update(stats: Mood) {
-        TODO("Not yet implemented")
+        _fiducia += stats.happiness * 0.1f
+        _rispetto += stats.happiness * 0.1f
+
+        _paura += stats.stress * 0.1f
+        _collaborazione -= stats.stress * 0.1f
+
+        _paura += stats.anger * 0.1f
+        _fiducia -= stats.anger * 0.1f
+        _influenza -= stats.anger * 0.1f
+
+        _paura = _paura.coerceIn(-1f, 1f)
+        _fiducia = _fiducia.coerceIn(-1f, 1f)
+        _rispetto = _rispetto.coerceIn(-1f, 1f)
+        _influenza = _influenza.coerceIn(-1f, 1f)
+        _collaborazione = _collaborazione.coerceIn(-1f, 1f)
     }
 }
