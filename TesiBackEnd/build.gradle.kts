@@ -30,6 +30,7 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.10.0")
 
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.14.0")
+    implementation("io.github.cdimascio:dotenv-kotlin:6.4.1")
 
     implementation("com.google.dagger:dagger:2.46.1")
     kapt("com.google.dagger:dagger-compiler:2.46.1")

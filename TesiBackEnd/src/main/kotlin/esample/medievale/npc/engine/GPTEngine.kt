@@ -37,12 +37,13 @@ import javax.xml.transform.OutputKeys
 import javax.xml.transform.TransformerFactory
 import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.StreamResult
+import io.github.cdimascio.dotenv.dotenv
 
 
 @Suppress("UNCHECKED_CAST")
 class GPTEngine: NPCEngine {
+    val dotenv = dotenv()
     private val URL = "https://api.openai.com/v1/chat/completions"
-    private val OPENAI_API_KEY = "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"
     private val messages = mutableListOf<Message>()
     private var started = false
     private val events = mutableListOf<Event>()
@@ -61,7 +62,7 @@ class GPTEngine: NPCEngine {
                 .url(URL)
                 .post(body)
                 .addHeader("Content-Type", "application/json")
-                .addHeader("Authorization", "Bearer $OPENAI_API_KEY")
+                .addHeader("Authorization", "Bearer "+ dotenv["OPENAI_API_KEY"])
                 .build()
 
             val res = client.newCall(request).execute()
