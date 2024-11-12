@@ -34,7 +34,7 @@ class MedievalEventType(name: String): EventType(name) {
         }
     }
 
-    fun toMap(): Map<String, Any>{
+    override fun toMap(): Map<String, Any>{
         val map = mutableMapOf<String, Any>()
         when(name){
             "AMICIZIA" -> map["AMICIZIA"] = mutableMapOf<String, String>("Funzione" to "Rafforzare legami sociali, esprimere supporto e solidarietà", "Esempi" to "Due artigiani che discutono delle loro famiglie e progetti futuri mentre lavorano")
@@ -68,5 +68,21 @@ class MedievalEventType(name: String): EventType(name) {
             )
         }
         return map
+    }
+
+    //-1 negative, 0 neutral and 1 positive
+    override fun isPositive(): Int {
+        return when(name){
+            "AMICIZIA" -> 1
+            "MINACCIA" -> -1
+            "SOSPETTO" -> -1
+            "SUPPORTO" -> 1
+            "COLLABORAZIONE" -> 1
+            "TRADIMENTO" -> -1
+            "SFIDA" -> 0
+            "AIUTO" -> 1
+            "OMICIDIO" -> 0
+            else -> TODO("not implemented yet")
+        }
     }
 }
