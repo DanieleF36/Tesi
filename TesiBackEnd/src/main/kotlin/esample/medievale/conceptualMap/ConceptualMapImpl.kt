@@ -1,12 +1,7 @@
 package esample.medievale.conceptualMap
 
 import conceptualMap2.clock.Clock
-import conceptualMap2.conceptualMap.CommonThought
-import conceptualMap2.conceptualMap.ConceptualMap
-import conceptualMap2.conceptualMap.Fellowship
-import conceptualMap2.conceptualMap.Link
-import conceptualMap2.conceptualMap.LinkType
-import conceptualMap2.conceptualMap.PropagateEventWhen
+import conceptualMap2.conceptualMap.*
 import conceptualMap2.event.AbstractEvent
 import conceptualMap2.event.ChangeRelationshipLTE
 import conceptualMap2.event.Event
@@ -32,8 +27,9 @@ class ConceptualMapImpl(
     commonThoughtOnPlayer: CommonThought,
     commonThoughtOnGroups: MutableMap<String, CommonThought>,
     fellowship: Fellowship,
+    groupSize: GroupSize,
     private val relationships: MutableMap<String, LinkType>
-): ConceptualMap(name, description, commonThoughtOnPlayer, commonThoughtOnGroups, fellowship) {
+): ConceptualMap(name, description, commonThoughtOnPlayer, commonThoughtOnGroups, fellowship, groupSize) {
 
     private val events: MutableMap<AbstractEvent, Int> = mutableMapOf()
     private val eventToPropagate: MutableSet<PropagateEventWhen> = mutableSetOf()
@@ -75,7 +71,7 @@ class ConceptualMapImpl(
                 commonThoughtOnGroups[event.personGenerated!!.second.group.name]!!.update(m2)
                 if(propagation)
                     links.forEach {
-                        if(Random.nextDouble()<=event.type.convertIntoValue()*it.distance.contribution*.1f*convertContributionEventImportance(event.importance as MedievalEventImportance))
+                        if(Random.nextDouble()<=it.linkType.value*it.distance.contribution*.1f*convertContributionEventImportance(event.importance as MedievalEventImportance))
                             it.propagate(event, this)
                     }
                 eventToPropagate.remove(it)
