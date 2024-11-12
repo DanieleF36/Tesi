@@ -15,8 +15,8 @@ class BidirectionalLink(
     val a: ConceptualMap,
     val b: ConceptualMap,
     val distance: Distance,
-    val weight: (context: WeightContext, event: AbstractEvent) -> LocalEvent,
-    val filter: (event: AbstractEvent) -> Boolean
+    val weight: (context: WeightContext, event: AbstractEvent) -> AbstractEvent,
+    val filter: (link: BidirectionalLink, event: AbstractEvent) -> Boolean
 ): Link(_type), WeightContext {
     private val historicalContextContribution = 10f
     private val l = mutableListOf<TimerEvent>()
@@ -27,7 +27,7 @@ class BidirectionalLink(
         if(event is Event) {
             updateCounter(event)
             val e = weight(this, event)
-            if (!filter(event))
+            if (!filter(this, event))
                 l.add(
                     TimerEvent(
                         e,
@@ -72,7 +72,7 @@ class BidirectionalLink(
     }
 
     private fun updateCounter(event: Event) {
-        if (!filter(event)) {
+        if (!filter(this, event)) {
             if (counters[event.type] != null)
                 if (counters[event.type]!![event.importance] != null)
                     counters[event.type]!![event.importance] = counters[event.type]!![event.importance]!! + 1
