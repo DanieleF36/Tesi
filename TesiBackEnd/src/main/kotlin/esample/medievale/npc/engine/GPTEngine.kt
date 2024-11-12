@@ -309,7 +309,7 @@ class GPTEngine: NPCEngine {
         val messagesList = listOf(msg)+messages.filter { it.role == Role.user || it.role == Role.assistant }
         val map = npc!!.context.toMap().toMutableMap()
         val dm = mutableMapOf<String, Any>()
-        messagesList.forEach{ dm["Sender role=${if(it.role == Role.user) "Allenatore" else npc!!.name}"] = it.content}
+        messagesList.forEach{ dm["Sender role=${if(it.role == Role.user) "player" else npc!!.name}"] = it.content}
         map["dialog"] = dm
         val m = Message(Role.user, createXml("Conversation", map, mapOf()))
         val event = sendRequest(listOf(msg, m), "gpt-4")
