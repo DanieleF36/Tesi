@@ -2,44 +2,32 @@ package esample.calcio.npc.engine
 
 import conceptualMap2.clock.Clock
 import conceptualMap2.conceptualMap.CommonThought
-import conceptualMap2.event.Event
-import conceptualMap2.event.EventImportance
-import conceptualMap2.event.EventType
-import conceptualMap2.event.LocalDateTimeSerializer
-import conceptualMap2.event.LocalEvent
-import conceptualMap2.event.PureEvent
+import conceptualMap2.event.*
 import conceptualMap2.exceptions.NPCNotStartedException
 import conceptualMap2.npc.Mood
 import conceptualMap2.npc.NPC
 import conceptualMap2.npc.NPCEngine
-import conceptualMap2.npc.knowledge.Knowledge
 import conceptualMap2.npc.Personality
 import esample.calcio.conceptualMap.CommonThoughtImpl
 import esample.calcio.event.impl.FootballEI
 import esample.calcio.event.impl.FootballET
 import esample.calcio.npc.footballer.personality.FootballerPersonality
 import esample.calcio.npc.footballer.personality.SimpleMood
-import kotlinx.serialization.KSerializer
-import kotlinx.serialization.builtins.serializer
-import kotlinx.serialization.descriptors.PrimitiveKind
-import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
-import kotlinx.serialization.descriptors.SerialDescriptor
-import kotlinx.serialization.descriptors.buildClassSerialDescriptor
+import esample.medievale.npc.engine.ApiResponse
+import esample.medievale.npc.engine.Message
+import esample.medievale.npc.engine.PostBody
+import esample.medievale.npc.engine.Role
 import kotlinx.serialization.encodeToString
-import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.float
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
-import kotlinx.serialization.modules.SerializersModule
-import kotlinx.serialization.modules.polymorphic
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
 import org.w3c.dom.Document
-import java.beans.Encoder
 import java.io.StringWriter
 import java.util.concurrent.TimeUnit
 import javax.xml.parsers.DocumentBuilderFactory
@@ -90,7 +78,12 @@ class GPTEngine: NPCEngine {
         }
     }
 
-    private fun sendSingleText(input: String, role: Role = Role.user): String = sendRequest(listOf(Message(role ,input)))
+    private fun sendSingleText(input: String, role: Role = Role.user): String = sendRequest(listOf(
+        esample.medievale.npc.engine.Message(
+            role,
+            input
+        )
+    ))
 
     private fun removeOutsideBraces(input: String): String {
         val result = StringBuilder() // Usando StringBuilder per costruire la nuova stringa
@@ -120,34 +113,41 @@ class GPTEngine: NPCEngine {
         return Pair(input.substringBefore(","), input.substringAfter(",").toInt())
     }
 
-    private fun generateStory(characterInfo: Map<String, Any>, comments: Map<String, String>): String {
+    private fun generateStory(characterInfo: Map<String, Any>): String {
         val m = characterInfo.toMutableMap()
         m["prompt"] = "date tutte queste informazioni riguardanti il personaggio generami una sua storia personale e restituiscimi solo quella, senza aggiungere altro"
-        return sendSingleText(createXml("request",m, comments))
+        return sendSingleText(createXml("request",m, mapOf()))
     }
 
-    private fun generatePersonality(characterInfo: Map<String, Any>, comments: Map<String, String>): Personality {
+    private fun generatePersonality(characterInfo: Map<String, Any>): Personality {
         val m = characterInfo.toMutableMap()
-        m["prompt"] = "date tutte queste informazioni riguardanti il personaggio generami una sua personalità e restituisci solo il jason che è compliant a questo schema "+readFile("..\\jsonSchema\\footballerPersonality.json")
+        m["prompt"] = "date tutte queste informazioni riguardanti il personaggio generami una sua personalità e restituisci solo il jason che è compliant a questo schema "+readFile("..\\jsonSchema\\simplePersonality.json")
 
-        val json = removeOutsideBraces(sendSingleText(createXml("request",m, comments)))
+        val json = removeOutsideBraces(sendSingleText(createXml("request",m, mapOf())))
         return Json.decodeFromString<FootballerPersonality>(json)
     }
 
-    private fun generateMood(characterInfo: Map<String, Any>, comments: Map<String, String>): Mood {
+    private fun generateMood(characterInfo: Map<String, Any>): Mood {
         val m = characterInfo.toMutableMap()
         m["prompt"] = "date tutte queste informazioni riguardanti il personaggio generami una suo mood e restituisci solo il jason che è compliant a questo schema "+readFile("..\\jsonSchema\\simpleMood.json")
 
-        val json = removeOutsideBraces(sendSingleText(createXml("request", m, comments)))
+        val json = removeOutsideBraces(sendSingleText(createXml("request", m, mapOf())))
         //println("MOOD: $json")
         return Json.decodeFromString<SimpleMood>(json)
     }
 
-    private fun generateThoughtOnPlayer(eventHistory: List<Event>, commonThought: CommonThought): CommonThought {
+    private fun generateThoughtOnPlayer(characterInfo: Map<String, Any>, comments: Map<String, String>): CommonThought {
+        val m = characterInfo.toMutableMap()
+        m["prompt"] = "date tutte queste informazioni riguardanti il personaggio e il pensiero comune del gruppo sul personaggio restituisci solo il jason che è compliant a questo schema "+readFile("..\\jsonSchema\\commonThoughtImpl.json")
+        val json = removeOutsideBraces(sendSingleText(input))
+        //println("MOOD: $json")
+        return Json.decodeFromString<CommonThoughtImpl>(json)
+    }
+
+    private fun generateThoughtOnOtherGroups(commonThoughtOnGroups: MutableMap<String, CommonThought>): MutableMap<String, CommonThought>{
         val input = """
             <request>
-                <commonThought>${commonThought.toMap()}</commonThought>
-                <eventHistory>${eventHistory.map { it.toMap() }}</eventHistory>
+                <commonThoughtsOnGroup>$commonThoughtOnGroups</commonThoughtsOnGroup>
                 <responseFormat>
                     <json>
                         <field name="_respect" type="float" min="-1" max="1"/>
@@ -163,7 +163,16 @@ class GPTEngine: NPCEngine {
         return Json.decodeFromString<CommonThoughtImpl>(json)
     }
 
-    override fun startNPC(map: MutableMap<String, Any>, comments: Map<String, String>, npc: NPC) {
+    private fun removeNull(map: MutableMap<String, Any?>): MutableMap<String, Any>{
+        val ret = mutableMapOf<String, Any>()
+        map.forEach { (k, v) ->
+            if(v != null)
+                ret[k] = v
+        }
+        return ret
+    }
+
+    override fun startNPC(map: MutableMap<String, Any?>, comments: Map<String, String>, npc: NPC) {
         val character: MutableMap<String, Any?> = map["character"] as MutableMap<String, Any?>
         val d = (character["details"]as MutableMap<String, Any?>)
         if(d["name"] == null || d["age"] == null) {
@@ -172,31 +181,56 @@ class GPTEngine: NPCEngine {
             if(d["age"] == null) {d["age"] = ret.second; npc.setAge(ret.second)}
         }
         if(d["personalStory"] == null) {
-            val story = generateStory(map, comments)
+            val m = mutableMapOf<String, Any>()
+            val details = removeNull(((map["character"] as Map<String, Any?>)["details"] as Map<String, Any?>).toMutableMap())
+            val char = removeNull((map["character"]!! as Map<String, Any?>).toMutableMap())
+            char["details"] = details
+            m["character"] = char
+            m["context"] = map["context"]!!
+            m["events"] = map["events"]!!
+            val story = generateStory(m)
             d["personalStory"] = story
             npc.setStory(story)
         }
         if(character["personality"] == null){
-            val p = generatePersonality(map, comments)
+            val m = mutableMapOf<String, Any>()
+            m["character"] = removeNull((map["character"]!! as Map<String, Any?>).toMutableMap())
+            m["context"] = map["context"]!!
+            m["events"] = map["events"]!!
+            val p = generatePersonality(m)
             npc.setPersonality(p)
             character["personality"] = p
 
         }
         if(character["mood"] == null) {
-            val m = generateMood(map, comments)
-            npc.setMood(m)
-            character["mood"] = m
+            val m = mutableMapOf<String, Any>()
+            m["character"] = removeNull((map["character"]!! as Map<String, Any?>).toMutableMap())
+            m["context"] = map["context"]!!
+            m["events"] = map["events"]!!
+            val mood = generateMood(m)
+            npc.setMood(mood)
+            character["mood"] = mood
         }
         if(character["thoughtOnPlayer"] == null) {
-            val t = generateThoughtOnPlayer(npc.group.getEventHistory(), npc.group.commonThoughtOnPlayer)
+            val m = mutableMapOf<String, Any>()
+            m["character"] = removeNull((map["character"]!! as Map<String, Any?>).toMutableMap())
+            m["context"] = map["context"]!!
+            m["events"] = map["events"]!!
+            m["commonThoughtOnPlayer"] = npc.group.commonThoughtOnPlayer.toMap()
+            val t = generateThoughtOnPlayer(m)
             npc.setThoughtOnPlayer(t)
             character["thoughtOnPlayer"] = t
+        }
+        if(character["thoughtOnOtherGroups"] == null){
+            val t = generateThoughtOnOtherGroups(npc.group.commonThoughtOnGroups)
+            npc.setThoughtOnOtherGroups(t)
+            character["thoughtOnOtherGroups"] = t
         }
 
         map["prompt"] = "Da qui in avanti tu interpreterai il personaggio descritto in character, che vive in un mondo definito in context e deve non solo reagire, coerentemente alla sua personalità, a tutti gli eventi ma anche parlarne pro attivamente in base alla tipologia e all'importanza e risponderai a me che sono l'allenatore della squadra"
 
         val initialize = createXml("request", map, comments)
-        messages.add(Message(Role.system, initialize))
+        messages.add(esample.medievale.npc.engine.Message(Role.system, initialize))
         started = true
         this.events.addAll(events)
         this.npc = npc
@@ -254,8 +288,8 @@ class GPTEngine: NPCEngine {
 
     }
 
-    override fun generateEvent(): LocalEvent {
-        val msg = Message(
+    override fun generateEvent(): PureEvent {
+        val msg = esample.medievale.npc.engine.Message(
             Role.system,
             """
              Sei un analista di conversazioni sportive. 
@@ -281,7 +315,7 @@ class GPTEngine: NPCEngine {
         val dm = mutableMapOf<String, Any>()
         messagesList.forEach{ dm["Sender role=${if(it.role == Role.user) "Allenatore" else npc!!.name}"] = it.content}
         map["dialog"] = dm
-        val m = Message(Role.user, createXml("Conversation", map, mapOf()))
+        val m = esample.medievale.npc.engine.Message(Role.user, createXml("Conversation", map, mapOf()))
         val event = sendRequest(listOf(msg, m), "gpt-4")
         val obj = Json.parseToJsonElement(event).jsonObject
         return LocalEvent(
@@ -295,7 +329,8 @@ class GPTEngine: NPCEngine {
     }
 
     override fun generateRandomEvent(map: MutableMap<String, Any>, comments: Map<String, String>): PureEvent {
-        map["eventGeneration"] = """
+        val eventGeneration = map["eventGeneration"] as MutableMap<String, Any>
+        eventGeneration["prompt"] = TODO()/*"""
              Sei un analista di conversazioni sportive. 
              Analizza la seguente conversazione e restituisci un JSON con i seguenti campi: 
             'evento', 'importanza', '_satisfaction', '_anger', '_stress' e 'description'. 
@@ -312,9 +347,14 @@ class GPTEngine: NPCEngine {
              Inoltre, se il 'sender' è l'allenatore e fa un commento negativo su un membro della squadra elencato nel Local Context, 
              includi 'Commento Negativo su Compagno: nome' nella descrizione e il è nome quello del compagno. 
              Restituisci solo il JSON come risultato.
-        """.trimIndent()
+        """.trimIndent()*/
         map["prompt"] = "Genera un evento che coinvolga character1 e character2. L'evento dovrebbe riflettere il loro rapporto professionale e personale, descritto in thoughtsOnOthers, tenendo conto delle loro personalità e del contesto attuale della squadra. Scegli un tipo di evento da quelli elencati (Fiducia, Incoraggiamento, Critica, etc.) che meglio si adatta alla situazione descritta nel contesto attuale e passato. L'evento deve avere un impatto emotivo significativo, con una descrizione che evidenzia le immediate conseguenze e le potenziali ramificazioni future."
-        val event = sendRequest(listOf(Message(Role.user, createXml("request", map, comments))), "gpt-4")
+        val event = sendRequest(listOf(
+            esample.medievale.npc.engine.Message(
+                Role.user,
+                createXml("request", map, comments)
+            )
+        ), "gpt-4")
         val obj = Json.parseToJsonElement(event).jsonObject
         return PureEvent(
             type = convertType(obj["type"]!!.jsonPrimitive.content),
@@ -351,20 +391,21 @@ class GPTEngine: NPCEngine {
     override fun talk(input: String): String {
         if (!started)
             throw NPCNotStartedException()
-        messages.add(Message(Role.user,input))
+        messages.add(esample.medievale.npc.engine.Message(Role.user, input))
         val ret = sendRequest(messages)
-        messages.add(Message(Role.assistant, ret))
+        messages.add(esample.medievale.npc.engine.Message(Role.assistant, ret))
         return ret
     }
 
-    override fun addDetails(detail: Map<String, Any>, comments: Map<String, String>) {
-        messages.add(Message(Role.system, createXml("request", detail, comments)))
+    override fun addDetails(name: String, detail: Map<String, Any>, comments: Map<String, String>) {
+        messages.add(esample.medievale.npc.engine.Message(Role.system, createXml("request", detail, comments)))
     }
 
-    override fun receiveEvent(event: Event, newMood: Mood, newThoughtOnPlayer: CommonThought) {
-        messages.add(Message(
-            Role.system,
-            createXml("event",event.toMap(), mapOf())
+    override fun receiveEvent(event: AbstractEvent, newMood: Mood, newThoughtOnPlayer: CommonThought) {
+        messages.add(
+            esample.medievale.npc.engine.Message(
+                Role.system,
+                createXml("event", event.toMap(), mapOf())
             )
         )
     }
