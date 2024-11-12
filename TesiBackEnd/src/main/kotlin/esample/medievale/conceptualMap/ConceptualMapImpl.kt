@@ -12,14 +12,19 @@ import conceptualMap2.event.LocalEvent
 import conceptualMap2.event.PureEvent
 import conceptualMap2.npc.Mood
 import conceptualMap2.npc.NPC
+import conceptualMap2.npc.knowledge.Knowledge
 import esample.medievale.WeightSimpleMood
-import esample.medievale.context
 import esample.medievale.event.NewCTAfterLTCE
 import esample.medievale.event.pureEvent.MedievalEventImportance
 import esample.medievale.event.pureEvent.MedievalEventType
 import esample.medievale.link.BidirectionalLink
 import esample.medievale.link.Relationship
 import esample.medievale.npc.Citizen
+import esample.medievale.npc.knowledge.actualContext.ActualContext
+import esample.medievale.npc.knowledge.localContext.LocalContext
+import esample.medievale.realEsample.context.global.globalContext
+import esample.medievale.realEsample.context.metaContext
+import java.lang.reflect.Field
 import kotlin.math.abs
 import kotlin.random.Random
 
@@ -734,7 +739,15 @@ class ConceptualMapImpl(
     }
 
     override fun generateNPC(): NPC {
-        return Citizen(group = this, context = context)
+        val cls = Class.forName("esample.medievale.realEsample.context.local.${name.lowercase()}LocalContextKt")
+        val localContextField: Field = cls.getDeclaredField("${name.lowercase()}LocalContext")
+        localContextField.isAccessible = true
+        val localContext = localContextField.get(null) as LocalContext
+        val cls2 = Class.forName("esample.medievale.realEsample.context.actual.${name.lowercase()}ActualContextKt")
+        val actualContextField: Field = cls2.getDeclaredField("${name.lowercase()}ActualContext")
+        actualContextField.isAccessible = true
+        val actualContext = actualContextField.get(null) as ActualContext
+        return Citizen(group = this, context = Knowledge(globalContext, localContext, actualContext, metaContext))
     }
 
     private fun notifyNPCs(e: AbstractEvent) {
