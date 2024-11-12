@@ -32,6 +32,7 @@ abstract class NPC (
     val tasks: MutableList<Task> = mutableListOf(),
     protected var _mood: Mood? = null,
     protected var _thoughtOnPlayer: CommonThought?,
+    protected var _thoughtOnOtherGroups: MutableMap<String, CommonThought>
 ): Closeable {
     companion object {protected var idNpc = 0}
     @Inject lateinit var engine: NPCEngine
@@ -66,7 +67,9 @@ abstract class NPC (
     internal fun setThoughtOnPlayer(thoughtOnPlayer: CommonThought){
         _thoughtOnPlayer = thoughtOnPlayer
     }
-
+    internal fun setThoughtOnOtherGroups(thoughtOnOtherGroups: Map<String, CommonThought>){
+        _thoughtOnOtherGroups = thoughtOnOtherGroups
+    }
     /**
     * If the backstory is missing the group one will be used
     * If the personality is missing the IA will generate that

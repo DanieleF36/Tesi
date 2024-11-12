@@ -1,11 +1,11 @@
 package conceptualMap2.npc.task;
 
-import conceptualMap2.event.Event
+import conceptualMap2.event.AbstractEvent
 
 
 open class Task(
     val description: String,
-    val action: (Event) -> Unit,
+    val action: (AbstractEvent) -> Unit,
 ){
     override fun toString(): String {
         return "description='$description')"
