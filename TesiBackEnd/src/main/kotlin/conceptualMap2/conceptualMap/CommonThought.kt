@@ -37,6 +37,7 @@ abstract class CommonThought(
         map["rispetto"] = _rispetto
         map["influenza"] = _influenza
         map["collaborazione"] = _collaborazione
+        map["comments"] = "se il valore di tutti i parametri del CommonThought sono .5f allora significa che il pensiero è completamente neutrale"
         return map
     }
 }
