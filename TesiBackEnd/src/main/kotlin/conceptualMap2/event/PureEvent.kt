@@ -15,7 +15,7 @@ class PureEvent(
     confidentiality: ConfidentialityLevel,
     var personGenerated: Pair<NPC, NPC>?,
     //It can be: personGenerated's group or null if it was generated in a neutral place
-    val generationPlace: ConceptualMap?
+    var generationPlace: ConceptualMap?
 ): Event(type, importance, statistic, description, generatedTime, confidentiality) {
     override fun toString(): String {
         return "Pure: description=$description, type=$type, importance=$importance, generatedTime=${generatedTime.format(

@@ -1,6 +1,5 @@
-package esample.calcio.npc.engine
+package esample.medievale.npc.engine
 
-import esample.medievale.npc.engine.Message
 import kotlinx.serialization.Serializable
 
 @Serializable

@@ -1,0 +1,41 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CommonThoughtMap",
+  "type": "object",
+  "additionalProperties": {
+    "type": "object",
+    "properties": {
+      "_paura": {
+        "type": "number",
+        "minimum": -1,
+        "maximum": 1,
+        "description": "Timore di minacce o aggressioni."
+      },
+      "_fiducia": {
+        "type": "number",
+        "minimum": -1,
+        "maximum": 1,
+        "description": "Grado di affidabilità percepita basata su passate alleanze e accordi."
+      },
+      "_rispetto": {
+        "type": "number",
+        "minimum": -1,
+        "maximum": 1,
+        "description": "Ammirazione per le qualità o le realizzazioni della città."
+      },
+      "_influenza": {
+        "type": "number",
+        "minimum": -1,
+        "maximum": 1,
+        "description": "Percezione del potere o dell'impatto dell'altra città sulle proprie politiche o economia. Vicino a 0 si teme attacco."
+      },
+      "_collaborazione": {
+        "type": "number",
+        "minimum": -1,
+        "maximum": 1,
+        "description": "Potenziale per lavorare insieme per obiettivi comuni."
+      }
+    },
+    "required": ["_paura", "_fiducia", "_rispetto", "_influenza", "_collaborazione"]
+  }
+}

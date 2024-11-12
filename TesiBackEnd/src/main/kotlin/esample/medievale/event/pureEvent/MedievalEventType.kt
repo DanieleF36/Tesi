@@ -17,9 +17,10 @@ class MedievalEventType(name: String): EventType(name) {
         val SFIDA = MedievalEventType("SFIDA")
         val AIUTO = MedievalEventType("AIUTO")
         val OMICIDIO = MedievalEventType("OMICIDIO")
+        val RABBIA = MedievalEventType("RABBIA")
 
         fun random(): MedievalEventType{
-            return when(Random.nextInt(9)){
+            return when(Random.nextInt(10)){
                 0 -> AMICIZIA
                 1 -> MINACCIA
                 2 -> SOSPETTO
@@ -29,6 +30,7 @@ class MedievalEventType(name: String): EventType(name) {
                 6 -> SFIDA
                 7 -> AIUTO
                 8 -> OMICIDIO
+                9 -> RABBIA
                 else -> throw RuntimeException("Error during generation of random number")
             }
         }
@@ -66,6 +68,9 @@ class MedievalEventType(name: String): EventType(name) {
             "OMICIDIO" -> map["OMICIDIO"] = mutableMapOf(
                 "Funzione" to "E' stato ritrovato un cadavere"
             )
+            "RABBIA" -> map["RABBIA"] = mutableMapOf(
+                "Funzione" to "Uno dei personaggi coinvolti si arrabbia molto"
+            )
         }
         return map
     }
@@ -82,6 +87,7 @@ class MedievalEventType(name: String): EventType(name) {
             "SFIDA" -> 0
             "AIUTO" -> 1
             "OMICIDIO" -> 0
+            "RABBIA" -> -1
             else -> TODO("not implemented yet")
         }
     }

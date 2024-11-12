@@ -1,0 +1,85 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PersonalityTraits",
+  "type": "object",
+  "properties": {
+    "reliability": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 10,
+      "description": "Grado di affidabilità."
+    },
+    "extraversion": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 10,
+      "description": "Livello di socievolezza."
+    },
+    "willpower": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 10,
+      "description": "Capacità di gestire situazioni stressanti o fallimenti."
+    },
+    "impulsivity": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 10,
+      "description": "Inclinazione a reagire senza riflettere."
+    },
+    "determination": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 10,
+      "description": "Livello di determinazione."
+    },
+    "charisma": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 10,
+      "description": "Livello di carisma."
+    },
+    "insight": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 10,
+      "description": "Capacità di intuire intenzioni altrui."
+    },
+    "eloquence": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 10,
+      "description": "Capacità di discutere in modo fluente, elegante e persuasivo."
+    },
+    "unpredictability": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 10,
+      "description": "Livello di imprevedibilità."
+    },
+    "communicationStyle": {
+      "type": "string",
+      "enum": [
+        "Diplomatico",
+        "Passivo",
+        "Aggressivo",
+        "Neutrale",
+        "Sarcastico",
+        "Volgare"
+      ],
+      "description": "Stile di comunicazione."
+    }
+  },
+  "required": [
+    "reliability",
+    "extraversion",
+    "willpower",
+    "impulsivity",
+    "determination",
+    "charisma",
+    "insight",
+    "eloquence",
+    "unpredictability",
+    "communicationStyle"
+  ]
+}

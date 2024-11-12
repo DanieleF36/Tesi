@@ -30,9 +30,9 @@ class Citizen(
     _personality: SimplePersonality? = null,
     tasks: MutableList<Task> = mutableListOf(),
     _mood: SimpleMood? = null,
-    _thoughtOnPlayer: CommonThoughtImpl?,
-    _thoughtOnOtherGroups: MutableMap<String, CommonThought>,
-    val job: Job,
+    _thoughtOnPlayer: CommonThoughtImpl? = null,
+    _thoughtOnOtherGroups: MutableMap<String, CommonThought>? = null,
+    var job: Job? = null,
 ): NPC(_age = _age, _name = _name, group = group, context = context, _story = _story, _personality = _personality, tasks = tasks, _mood = _mood, _thoughtOnPlayer = _thoughtOnPlayer, _thoughtOnOtherGroups=_thoughtOnOtherGroups) {
     private val knownNpc = mutableMapOf<Int, NPCRelationship>()
     private val events = mutableListOf<TimerEvent>()
@@ -40,7 +40,9 @@ class Citizen(
     override fun initialize() {
         if(sex == null)
             sex = Random.nextBoolean()
-        engine.generateRandomEvent(toMap().toMutableMap(), mapOf())
+        if(job == null)
+            job = Job.random()
+        engine.startNPC(toMap().toMutableMap(), mapOf(), this)
     }
 
     override fun endConversation() {
@@ -83,6 +85,13 @@ class Citizen(
 
         ))
         val event = engine.generateRandomEvent(map, mapOf())
+        event.personGenerated = Pair(this, npc)
+        event.generationPlace = when(Random.nextInt(3)){
+            0 -> group
+            1 -> null
+            2 -> npc.group
+            else -> throw IllegalStateException("Error during the generation")
+        }
         _mood = _mood!!.update(event.statistic)
         _thoughtOnPlayer!!.update(event.statistic)
         group.receiveEvent(event)
@@ -96,8 +105,8 @@ class Citizen(
             mapOf("knownNpc change=" to "la relazione con il personaggio con l'id $id è cambiata"))
     }
 
-    override fun toMap(): Map<String, Any> {
-        val map = mutableMapOf<String, Any>()
+    override fun toMap(): Map<String, Any?> {
+        val map = mutableMapOf<String, Any?>()
         val character = mutableMapOf<String, Any?>()
         character["details"] = mapOf(
             "name" to name,
@@ -105,17 +114,16 @@ class Citizen(
             "sex" to if(sex!!) "women" else "man",
             "group" to mapOf("name" to group.name, "description" to group.description),
             "personalStory" to story,
-            "job" to job.name
+            "job" to job!!.name
         )
         character["personality"] = personality?.toMap()
         character["mood"] = mood?.toMap()
         character["thoughtOnPlayer"] = thoughtOnPlayer?.toMap()
+        character["thoughtOnOtherGroups"] = _thoughtOnOtherGroups
+        character["knownNpc"] = knownNpc
         map["character"] = character
         map["context"] = context.toMap()
         map["events"] = group.getEventHistory().map { event -> event.toMap() }
-        map["thoughtOnPlayer"] = thoughtOnPlayer!!.toMap()
-        map["thoughtOnOtherGroups"] = _thoughtOnOtherGroups
-        map["knownNpc"] = knownNpc
         return map
     }
 
@@ -269,7 +277,7 @@ class Citizen(
             event,
             Duration.of((g*a*.5f*10f).toLong(), ChronoUnit.MONTHS),
         ){
-            _thoughtOnOtherGroups[event.groupName] = event.newCT
+            _thoughtOnOtherGroups!![event.groupName] = event.newCT
             engine.addDetails("UpdateThought", map, mapOf())
             events.remove(it)
 

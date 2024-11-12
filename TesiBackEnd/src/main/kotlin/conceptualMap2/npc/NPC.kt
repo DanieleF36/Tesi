@@ -31,8 +31,8 @@ abstract class NPC (
     protected var _personality: Personality? = null,
     val tasks: MutableList<Task> = mutableListOf(),
     protected var _mood: Mood? = null,
-    protected var _thoughtOnPlayer: CommonThought?,
-    protected var _thoughtOnOtherGroups: MutableMap<String, CommonThought>
+    protected var _thoughtOnPlayer: CommonThought? = null,
+    protected var _thoughtOnOtherGroups: MutableMap<String, CommonThought>? = null
 ): Closeable {
     companion object {protected var idNpc = 0}
     @Inject lateinit var engine: NPCEngine
@@ -48,6 +48,8 @@ abstract class NPC (
         get() = _mood
     val thoughtOnPlayer: CommonThought?
         get() = _thoughtOnPlayer
+    val thoughtOnOtherGroups: MutableMap<String, CommonThought>?
+        get() = _thoughtOnOtherGroups
 
     internal fun setAge(age: Int){
         _age = age
@@ -67,7 +69,7 @@ abstract class NPC (
     internal fun setThoughtOnPlayer(thoughtOnPlayer: CommonThought){
         _thoughtOnPlayer = thoughtOnPlayer
     }
-    internal fun setThoughtOnOtherGroups(thoughtOnOtherGroups: Map<String, CommonThought>){
+    internal fun setThoughtOnOtherGroups(thoughtOnOtherGroups: MutableMap<String, CommonThought>){
         _thoughtOnOtherGroups = thoughtOnOtherGroups
     }
     /**
@@ -97,7 +99,7 @@ abstract class NPC (
      */
     abstract fun generateRandomEvent(npc: NPC, type: EventType, importance: EventImportance)
 
-    abstract fun toMap(): Map<String, Any>
+    abstract fun toMap(): Map<String, Any?>
 
     override fun equals(other: Any?): Boolean {
         if (this === other)

@@ -10,7 +10,7 @@ class SimplePersonality(
     private val determination: Int,
     private val charisma: Int,
     private val insight: Int, //Capacità di intuire intenzioni altrui
-    private val eloquence: Int,
+    private val eloquence: Int, //la sua capacità di discutere in modo fluente, elegante e persuasivo
     private val unpredictability: Int,
     private val communicationStyle: CommunicationStyle
 ): Personality() {
